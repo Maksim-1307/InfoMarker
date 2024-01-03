@@ -1,6 +1,7 @@
 <?php
 
-require('settings.php');
+require_once('settings.php');
+require_once("fucntions.php");
 
 function get_files_array()
 {
@@ -22,7 +23,7 @@ function print_files_list()
 
     echo "<h2>Ваши файлы:</h2><p>";
     foreach ($files as $filename) {
-        print_file($filename);
+        echo print_file($filename);
     }
     if (count($files) == 0) {
         echo "<div>no files loaded yet</div>";
@@ -37,10 +38,10 @@ function print_file($filename)
     global $lengthOfFilePreviewText;
 
     ?>
-    <div class="file-card">
+    <a href="<?= get_url() . 'file.php?name=' . $filename ?>" class="file-card">
         <h3 class="file-card__name"><?= $filename ?></h3>
         <p class="file-card__file-content"><?= file_get_contents( $filesPath . $filename, FALSE, NULL, 0, $lengthOfFilePreviewText) ?></p>
-    </div>
+    </a>
     <?php
 }
 

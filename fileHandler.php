@@ -4,7 +4,6 @@
 
     <?php
 
-    require_once('functions.php');
     require_once('FileLoader/settings.php');
     require_once('FileLoader/filesList.php');
 
