@@ -37,12 +37,13 @@ function print_file($filename)
     global $filesPath;
     global $lengthOfFilePreviewText;
 
-    ?>
-    <a href="<?= get_url() . 'file.php?name=' . $filename ?>" class="file-card">
-        <h3 class="file-card__name"><?= $filename ?></h3>
-        <p class="file-card__file-content"><?= file_get_contents( $filesPath . $filename, FALSE, NULL, 0, $lengthOfFilePreviewText) ?></p>
-    </a>
-    <?php
+?>
+    <a href="<?=  '/file.php?name=' . $filename ?>">
+        <?= $filename ?>
+        <!-- <h3 class="file-card__name"><?= $filename ?></h3>
+        <p class="file-card__file-content"><?= file_get_contents($filesPath . $filename, FALSE, NULL, 0, $lengthOfFilePreviewText) ?></p> -->
+    </a><br>
+<?php
 }
 
 ?>
