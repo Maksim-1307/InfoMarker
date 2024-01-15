@@ -1,9 +1,9 @@
 <section class="fileloader-section">
     <div class="container">
         <div class="fileloader">
-            <form action="filehandler/load.php" method="post" enctype="multipart/form-data">
+            <form action="../filehandler/upload.php" method="post" enctype="multipart/form-data">
 
-                <input type="file" name="newfile" />
+                <input type="file" name="new_document" />
                 Отправить этот файл:
                 <input type="submit" value="Отправить файл" />
                 <div>перетаскивания пока нет</div>

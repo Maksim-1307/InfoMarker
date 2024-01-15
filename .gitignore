@@ -1,2 +1,6 @@
 files/*
 .DS_Store
+uploads
+secret.php
+tasks.txt
+user_cash_*
