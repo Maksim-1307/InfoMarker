@@ -3,23 +3,21 @@
 session_start();
 require_once 'settings.php';
 
-function deleteDir(string $dirPath): void
+function deleteDir(string $dir): void
 {
-    if (!is_dir($dirPath)) {
-        throw new InvalidArgumentException("$dirPath must be a directory");
-    }
-    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-        $dirPath .= '/';
-    }
-    $files = glob($dirPath . '*', GLOB_MARK);
+    $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator(
+        $it,
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
     foreach ($files as $file) {
-        if (is_dir($file)) {
-            deleteDir($file);
+        if ($file->isDir()) {
+            rmdir($file->getPathname());
         } else {
-            unlink($file);
+            unlink($file->getPathname());
         }
     }
-    rmdir($dirPath);
+    rmdir($dir);
 }
 
 $path_to_root = "../";

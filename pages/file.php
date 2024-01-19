@@ -12,10 +12,12 @@
     <div class="wrapper">
         <?php require '../blocks/header.php' ?>
         <section>
-            <?php require '../blocks/processed_text.php' ?>
+            <div class="container">
+                <?php require '../blocks/processed_text.php' ?>
+            </div>
         </section>
     </div>
-    <?php require '../blocks/footer.php'?>
+    <?php require '../blocks/footer.php' ?>
 </body>
 
 </html>

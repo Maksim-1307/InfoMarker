@@ -6,23 +6,21 @@
 
     require_once 'settings.php';
 
-    function deleteDir(string $dirPath): void
+    function deleteDir(string $dir): void
     {
-        if (!is_dir($dirPath)) {
-            throw new InvalidArgumentException("$dirPath must be a directory");
-        }
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-            $dirPath .= '/';
-        }
-        $files = glob($dirPath . '*', GLOB_MARK);
+        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator(
+            $it,
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
         foreach ($files as $file) {
-            if (is_dir($file)) {
-                deleteDir($file);
+            if ($file->isDir()) {
+                rmdir($file->getPathname());
             } else {
-                unlink($file);
+                unlink($file->getPathname());
             }
         }
-        rmdir($dirPath);
+        rmdir($dir);
     }
 
     $zip = new ZipArchive;
@@ -30,6 +28,8 @@
 
     $fileFullName = $_SESSION["currentfile"];
     $aFileName = explode('.', $fileFullName)[0];
+
+    $_SESSION["unzip_folder_name"] = $aFileName; 
 
     $extractDir = $_SESSION["cash_directory_relative_path"] . $aFileName;
 
