@@ -4,3 +4,4 @@ uploads
 secret.php
 tasks.txt
 user_cash_*
+pages/*.html

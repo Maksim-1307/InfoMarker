@@ -5,7 +5,7 @@
 session_start();
 
 function get_concidences($string, $word){
-    return array(3, 4, 5, 15, 20);
+    return array(3, 4, 5, 15, 20, 88);
 }
 
 function split_paragraph($paragraph){
@@ -16,10 +16,8 @@ function split_paragraph($paragraph){
         $segment_text = (string)($segments_array[0]->t);
         $segment_words = explode(" ", $segment_text);
         $styles_tag = $segments_array[0]->rPr;
-        var_dump($styles_tag);
         foreach ($segment_words as $word) {
             if ($word) {
-                echo "<br>";
                 $word_object = $paragraph->addChild("r");
                 sxml_append($word_object, $styles_tag);
                 $text = $word_object->addChild("t", $word . " ");
@@ -56,6 +54,7 @@ function process_xml(){
             $i = 0;
             foreach ($paragraph->r as $segment) {
                 if (in_array($i, $marked_words)) {
+                    unset($segment->rPr->highlight);
                     $segment->rPr->addChild("w:highlight w:val=\"yellow\"");
                 }
                 $i += 1;
@@ -70,7 +69,5 @@ function process_xml(){
 if(process_xml()){
     header('Location: compress.php');
 }
-// process_xml();
-
 
 ?>
