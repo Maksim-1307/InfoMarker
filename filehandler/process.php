@@ -5,7 +5,7 @@
 session_start();
 
 function get_concidences($string, $word){
-    return array(0, 2, 10);
+    return array(3, 4, 5, 15, 20);
 }
 
 function split_paragraph($paragraph){
@@ -47,22 +47,18 @@ function process_xml(){
     $body = $xml_document->body;
 
     foreach($body->p as $paragraph){
-        $i = 0;
         $marked_words = get_concidences("", "");
         //$remove_queue = array();
         if (count($marked_words) > 0){
             
             split_paragraph($paragraph);
 
+            $i = 0;
             foreach ($paragraph->r as $segment) {
-                $words = explode(" ", (string)($segment->t));
-                foreach ($words as $word) {
-                    if (in_array($i, $marked_words)) {
-                        //echo $i . " " . $word . '<br>';
-                        $segment->rPr->addChild("w:highlight w:val=\"yellow\"");
-                    }
-                    $i += 1;
+                if (in_array($i, $marked_words)) {
+                    $segment->rPr->addChild("w:highlight w:val=\"yellow\"");
                 }
+                $i += 1;
             }
         }
     } 
