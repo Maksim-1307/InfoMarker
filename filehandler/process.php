@@ -5,7 +5,38 @@
 session_start();
 
 function get_concidences($string, $word){
-    return array(1, 2, 10);
+    return array(0, 2, 10);
+}
+
+function split_paragraph($paragraph){
+    $segments_array = $paragraph->r;
+    $segments_count = count($segments_array);
+
+    for ($i = 0; $i < $segments_count; $i++) {
+        $segment_text = (string)($segments_array[0]->t);
+        $segment_words = explode(" ", $segment_text);
+        $styles_tag = $segments_array[0]->rPr;
+        var_dump($styles_tag);
+        foreach ($segment_words as $word) {
+            if ($word) {
+                echo "<br>";
+                $word_object = $paragraph->addChild("r");
+                sxml_append($word_object, $styles_tag);
+                $text = $word_object->addChild("t", $word . " ");
+                $text->addAttribute("xml:space", "preserve", "xml");
+            }
+        }
+        unset($segments_array[0]);
+    }
+}
+
+function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
+{
+    if (count($from)){
+        $toDom = dom_import_simplexml($to);
+        $fromDom = dom_import_simplexml($from);
+        $toDom->appendChild($toDom->ownerDocument->importNode($fromDom->cloneNode(true), true));
+    }
 }
 
 function process_xml(){
@@ -18,11 +49,21 @@ function process_xml(){
     foreach($body->p as $paragraph){
         $i = 0;
         $marked_words = get_concidences("", "");
-        foreach($paragraph->r as $word){
-            if (in_array($i, $marked_words)){
-                $word->rPr->addChild("w:highlight w:val=\"yellow\"");
+        //$remove_queue = array();
+        if (count($marked_words) > 0){
+            
+            split_paragraph($paragraph);
+
+            foreach ($paragraph->r as $segment) {
+                $words = explode(" ", (string)($segment->t));
+                foreach ($words as $word) {
+                    if (in_array($i, $marked_words)) {
+                        //echo $i . " " . $word . '<br>';
+                        $segment->rPr->addChild("w:highlight w:val=\"yellow\"");
+                    }
+                    $i += 1;
+                }
             }
-            $i += 1;
         }
     } 
 
@@ -33,6 +74,7 @@ function process_xml(){
 if(process_xml()){
     header('Location: compress.php');
 }
+// process_xml();
 
 
 ?>
