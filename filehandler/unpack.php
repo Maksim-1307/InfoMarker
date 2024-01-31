@@ -44,6 +44,7 @@
     if (!($zip->extractTo($extractDir))){
         die("Не удалось открыть файл");
     } else {
+        //die();
         header('Location: process.php');
     }
     

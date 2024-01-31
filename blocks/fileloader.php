@@ -3,7 +3,7 @@
         <div class="fileloader">
             <form action="../filehandler/upload.php" method="post" enctype="multipart/form-data">
 
-                <input type="file" name="new_document" />
+                <input type="file" name="new_document" accept=".docx" />
                 Отправить этот файл:
                 <input type="submit" value="Отправить файл" />
                 <div>перетаскивания пока нет</div>
