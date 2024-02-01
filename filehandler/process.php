@@ -43,6 +43,7 @@ function coincidencesByName($str1, $str2){
     $words2 = explode(' ', $str2);
     $count = count($words2);
     $wordsCount = count($words);
+    //$_SESSION["coinsidences_count"] = [];
 
     for ($i = 0; $i < $wordsCount; $i++){
         $word = "";
@@ -55,10 +56,11 @@ function coincidencesByName($str1, $str2){
                 $coins = $coins2;
                 if ($coins >= $MINCOINS) {
                     array_push($result, $i + $j);
+                    $_SESSION["coinsidences_count"][$str2] += 1;
                 }
             }
         }
-    }
+    };
     return $result;
 }
 
@@ -76,7 +78,7 @@ function split_paragraph($paragraph){
         $styles_tag = $segments_array[0]->rPr;
         for ($w = 0; $w < count($segment_words); $w++) {
             $word = $segment_words[$w];
-            print_r(explode(" ", $word));
+            //print_r(explode(" ", $word));
             if ($word) {
                 if ($w < count($segment_words)-1 && is_punctuation($segment_words[$w + 1])){
                     $next_word = $segment_words[$w+1];
