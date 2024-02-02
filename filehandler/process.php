@@ -6,6 +6,7 @@ session_start();
 
 
 $colors = array();
+$paragraph_coins = array();
 
 
 function uniqColor(){
@@ -45,15 +46,16 @@ function is_punctuation($t){
 }
 
 function saveCoincidences($text){
+    global $paragraph_coins;
     $coinsidences = [];
 
     $forbidden_words = array("Lorem", "adipisicing", "repellendus", "tempore", "repellat", "test", "corrupti", "amet");
-    $_SESSION["coinsidences"] = [];
+    $paragraph_coins = [];
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
         if (count($indices)){
             $color = getColor($word);
-            $_SESSION["coinsidences"][$word] = array($indices, $color);
+            $paragraph_coins[$word] = array($indices, $color);
         }
     }
     return $coinsidences;
@@ -148,6 +150,8 @@ function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
 
 function process_xml(){
 
+    global $paragraph_coins;
+
     $path_to_document = "word/document.xml";
     $XMLfile_path = $_SESSION["cash_directory_relative_path"] . $_SESSION["unzip_folder_name"] . '/' . $path_to_document;
     $xml_document = simplexml_load_file($XMLfile_path, null, 0, 'w', true);
@@ -155,8 +159,7 @@ function process_xml(){
 
     foreach($body->p as $paragraph){
         saveCoincidences(extract_text($paragraph));
-        $coinsidences = $_SESSION["coinsidences"];
-        print_r($coinsidences);
+        $coinsidences = $paragraph_coins;
         split_paragraph($paragraph);
         
         if (count($coinsidences) > 0){
@@ -186,7 +189,7 @@ if(process_xml()){
 //
     //die();
     header('Location: compress.php');
-    //print_r($_SESSION["coinsidences"]);
+    //print_r($paragraph_coins);
 }
 
 ?>
