@@ -4,18 +4,36 @@
 
 session_start();
 
+
+$colors = array();
+
+
+function uniqColor(){
+    global $colors;
+    $color = sprintf("#%02x%02x%02x", mt_rand(0, 255), mt_rand(0, 255), mt_rand(0, 255));
+    //while (in_array($color, $colors)){
+        $color = sprintf("#%02x%02x%02x", mt_rand(0, 255), mt_rand(0, 255), mt_rand(0, 255));
+    //}
+    array_push($colors, $color);
+    return $color;
+}
+
 //test color funcution
 function getColor($word){
     if (isset($_SESSION["coinsidences_count"][$word])){
-        $color;
-        if (strlen($word) >= 5) {
-            $color = "#FFFF00";
+        if (isset($_SESSION["coinsidences_count"][$word]["color"])){
+            return $_SESSION["coinsidences_count"][$word]["color"];
         } else {
-            $color = "#00FF00";
+            $color;
+            if (strlen($word) >= 5) {
+                $color = "#FFFF00";
+            } else {
+                $color = "#00FF00";
+            }
+            $color = uniqColor();
+            $_SESSION["coinsidences_count"][$word]["color"] = $color;
+            return $color;
         }
-        //print($_SESSION["coinsidences_count"][$word]);
-        $_SESSION["coinsidences_count"][$word]["color"] = $color;
-        return $color;
     } else {
         die("Coinsidence not found in session array");
     }
