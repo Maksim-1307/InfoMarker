@@ -10,9 +10,9 @@ $colors = array();
 
 function uniqColor(){
     global $colors;
-    $color = sprintf("#%02x%02x%02x", mt_rand(0, 255), mt_rand(0, 255), mt_rand(0, 255));
+    $color = sprintf("#%02x%02x%02x", mt_rand(180, 240), mt_rand(180, 240), mt_rand(180, 240));
     //while (in_array($color, $colors)){
-        $color = sprintf("#%02x%02x%02x", mt_rand(0, 255), mt_rand(0, 255), mt_rand(0, 255));
+        //$color = sprintf("#%02x%02x%02x", mt_rand(180, 220), mt_rand(0, 255), mt_rand(0, 255));
     //}
     array_push($colors, $color);
     return $color;
