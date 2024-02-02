@@ -4,9 +4,21 @@
 
 session_start();
 
-
-function getColor(){
-    return "#FFFFFF";
+//test color funcution
+function getColor($word){
+    if (isset($_SESSION["coinsidences_count"][$word])){
+        $color;
+        if (strlen($word) >= 5) {
+            $color = "#FFFF00";
+        } else {
+            $color = "#00FF00";
+        }
+        //print($_SESSION["coinsidences_count"][$word]);
+        $_SESSION["coinsidences_count"][$word]["color"] = $color;
+        return $color;
+    } else {
+        die("Coinsidence not found in session array");
+    }
 }
 
 function is_punctuation($t){
@@ -22,7 +34,7 @@ function saveCoincidences($text){
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
         if (count($indices)){
-            $color = getColor();
+            $color = getColor($word);
             $_SESSION["coinsidences"][$word] = array($indices, $color);
         }
     }
@@ -36,14 +48,18 @@ function coincidence($str1, $str2){
 }
 
 function coincidencesByName($str1, $str2){
-    $MINCOINS = 0.9;
+    $MINCOINS = 0.75;
 
     $result = [];
     $words = explode(' ', $str1);
     $words2 = explode(' ', $str2);
     $count = count($words2);
     $wordsCount = count($words);
-    //$_SESSION["coinsidences_count"] = [];
+    //$_SESSION["coinsidences_count"] = []
+
+    if (!isset($_SESSION["coinsidences_count"][$str2])){
+        $_SESSION["coinsidences_count"][$str2] = [];
+    }
 
     for ($i = 0; $i < $wordsCount; $i++){
         $word = "";
@@ -56,7 +72,7 @@ function coincidencesByName($str1, $str2){
                 $coins = $coins2;
                 if ($coins >= $MINCOINS) {
                     array_push($result, $i + $j);
-                    $_SESSION["coinsidences_count"][$str2] += 1;
+                    $_SESSION["coinsidences_count"][$str2]["count"] += 1;
                 }
             }
         }
@@ -134,7 +150,7 @@ function process_xml(){
                     if (in_array($i, $coins[0])) {
                         //print_r($coins[0]);
                         unset($segment->rPr->highlight);
-                        $segment->rPr->addChild("w:highlight w:val=\"yellow\"");
+                        $segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
                     }
                     $i += 1;
                 }
@@ -147,6 +163,7 @@ function process_xml(){
 
 }
 
+unset($_SESSION["coinsidences_count"]);
 if(process_xml()){
 //
     //die();

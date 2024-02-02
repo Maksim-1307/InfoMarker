@@ -4,11 +4,12 @@
     // foreach($coinsidences as $name => $count){
     //     echo "f" . $coins;
     // }
-    foreach($_SESSION["coinsidences_count"] as $name => $count){
+    foreach($_SESSION["coinsidences_count"] as $name => $data){
         //$color = $_SESSION["coinsidences"][$name]["color"];
-        echo "<div class='report__row'><div>". $name ."</div><div>$count</div></div>";
-    } 
-    //print_r($coinsidences);
+        if ($data) {
+            echo "<div class='report__row' style='background:" . $data["color"] . "'><div>" . $name . "</div><div>" . $data["count"] . "</div></div>";
+        } 
+    }
     //echo isset() 
     ?>
 </div>
