@@ -5,8 +5,8 @@ session_start();
 
 function make_docx()
 {
-    //$_SESSION["cash_directory_relative_path"] . $_SESSION["currentfile"]
-    $dir = $_SESSION["cash_directory_relative_path"] . $_SESSION["unzip_folder_name"];
+    //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
+    $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
     $zip = new ZipArchive;
     $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
 

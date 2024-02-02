@@ -1,1 +1,1 @@
-<a href="<?= $_SESSION["cash_directory_relative_path"] . $_SESSION["currentfile"] ?>" download>скачать файл</a>
+<a href="<?= $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"] ?>" download>скачать файл</a>

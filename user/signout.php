@@ -2,5 +2,8 @@
 
 session_start();
 
-unset($_SESSION['user']);
+foreach ($_SESSION as $prop => $val){
+    unset($_SESSION[$prop]);
+}
+
 header('Location: ../index.php');

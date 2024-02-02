@@ -21,9 +21,9 @@ function uniqColor(){
 
 //test color funcution
 function getColor($word){
-    if (isset($_SESSION["coinsidences_count"][$word])){
-        if (isset($_SESSION["coinsidences_count"][$word]["color"])){
-            return $_SESSION["coinsidences_count"][$word]["color"];
+    if (isset($_SESSION["coinsidences"][$word])){
+        if (isset($_SESSION["coinsidences"][$word]["color"])){
+            return $_SESSION["coinsidences"][$word]["color"];
         } else {
             $color;
             if (strlen($word) >= 5) {
@@ -32,7 +32,7 @@ function getColor($word){
                 $color = "#00FF00";
             }
             $color = uniqColor();
-            $_SESSION["coinsidences_count"][$word]["color"] = $color;
+            $_SESSION["coinsidences"][$word]["color"] = $color;
             return $color;
         }
     } else {
@@ -75,10 +75,10 @@ function coincidencesByName($str1, $str2){
     $words2 = explode(' ', $str2);
     $count = count($words2);
     $wordsCount = count($words);
-    //$_SESSION["coinsidences_count"] = []
+    //$_SESSION["coinsidences"] = []
 
-    if (!isset($_SESSION["coinsidences_count"][$str2])){
-        $_SESSION["coinsidences_count"][$str2] = [];
+    if (!isset($_SESSION["coinsidences"][$str2])){
+        $_SESSION["coinsidences"][$str2] = [];
     }
 
     for ($i = 0; $i < $wordsCount; $i++){
@@ -92,7 +92,7 @@ function coincidencesByName($str1, $str2){
                 $coins = $coins2;
                 if ($coins >= $MINCOINS) {
                     array_push($result, $i + $j);
-                    $_SESSION["coinsidences_count"][$str2]["count"] += 1;
+                    $_SESSION["coinsidences"][$str2]["count"] += 1;
                 }
             }
         }
@@ -153,7 +153,7 @@ function process_xml(){
     global $paragraph_coins;
 
     $path_to_document = "word/document.xml";
-    $XMLfile_path = $_SESSION["cash_directory_relative_path"] . $_SESSION["unzip_folder_name"] . '/' . $path_to_document;
+    $XMLfile_path = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . '/' . $path_to_document;
     $xml_document = simplexml_load_file($XMLfile_path, null, 0, 'w', true);
     $body = $xml_document->body;
 
@@ -184,7 +184,7 @@ function process_xml(){
 
 }
 
-unset($_SESSION["coinsidences_count"]);
+unset($_SESSION["coinsidences"]);
 if(process_xml()){
 //
     //die();
