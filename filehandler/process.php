@@ -8,13 +8,47 @@ session_start();
 $colors = array();
 $paragraph_coins = array();
 
+function nice_color($color)
+{
+    $mindeviation = 20;
+    $average = ($color[0] + $color[1] + $color[2]) / 3;
+    for ($i = 0; $i < 3; $i++) {
+        if (abs($color[$i] - $color[($i + 2) % 3]) <= $mindeviation) {
+            return false;
+        }
+    }
+    if ((255 * 3 - ($color[0] + $color[1] + $color[2])) < 200) { //32 * 3 - ($color[0] + $color[1] + $color[2]) < 32
+        return true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+function genColor()
+{
+    global $colors;
+    // from 0 to 32 for each channel
+    $min = 0;
+    $max = 255;
+    $factor = 8;
+    $color = array(mt_rand($min, $max), mt_rand($min, $max), mt_rand($min, $max));
+    while (!nice_color($color)) {
+        $color = array(mt_rand($min, $max), mt_rand($min, $max), mt_rand($min, $max));
+    }
+    $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+    while(in_array($color, $colors)){
+        $color = genColor();
+    }
+    return $color;
+}
 
 function uniqColor(){
     global $colors;
     $color = sprintf("#%02x%02x%02x", mt_rand(180, 240), mt_rand(180, 240), mt_rand(180, 240));
-    //while (in_array($color, $colors)){
-        //$color = sprintf("#%02x%02x%02x", mt_rand(180, 220), mt_rand(0, 255), mt_rand(0, 255));
-    //}
+    // while (in_array($color, $colors)){
+    //     $color = sprintf("#%02x%02x%02x", mt_rand(180, 220), mt_rand(0, 255), mt_rand(0, 255));
+    // }
     array_push($colors, $color);
     return $color;
 }
@@ -25,13 +59,7 @@ function getColor($word){
         if (isset($_SESSION["coinsidences"][$word]["color"])){
             return $_SESSION["coinsidences"][$word]["color"];
         } else {
-            $color;
-            if (strlen($word) >= 5) {
-                $color = "#FFFF00";
-            } else {
-                $color = "#00FF00";
-            }
-            $color = uniqColor();
+            $color = genColor();
             $_SESSION["coinsidences"][$word]["color"] = $color;
             return $color;
         }
