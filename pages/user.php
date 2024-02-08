@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href="../style.css">
-    <title>TextMarker | Личный кабинет</title>
+    <title>InfoMarker | Личный кабинет</title>
 </head>
 
 <body>
@@ -33,6 +33,7 @@
                     </div>
                     <div class="segment">
                         <label>Изображение</label>
+                        <img class="user-card__avatar" src="../<?= $_SESSION["user"]["avatar"] ?>">
                         <input type="file" name="profile-image" class="field-1" accept="image/png, image/jpeg">
                     </div>
                     <div class="segment">

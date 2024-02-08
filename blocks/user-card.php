@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) die('No active session');
     ?>
         <div class="user-card__content">
             <div class="user-card__full-name"><?= $_SESSION['user']['full_name'] ?></div>
-            <a href="../user/settings.php">настройки</a>
+            <a href="../pages/user.php">настройки</a>
             <a href="../user/signout.php">выйти</a>
         </div>
         <div class="user-card__image">
