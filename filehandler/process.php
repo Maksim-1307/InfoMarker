@@ -19,7 +19,7 @@ function get_names_from_db(){
             array_push($register_list, $row['name']);
         }
     } else {
-        echo "rows: " . $res->num_rows > 0;
+       //echo "rows: " . $res->num_rows > 0;
     }
     return $register_list;
 }
@@ -75,7 +75,11 @@ function setColor($word){
 
 function is_punctuation($t){
     $text = trim($t, " !?.,;:");
-    return strlen($text) == 0;
+    if (strlen($text) == 0){
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 function saveCoincidences($text){
@@ -83,7 +87,7 @@ function saveCoincidences($text){
     global $register_list;
     $coinsidences = [];
 
-    $forbidden_words = $register_list;//array("Lorem", "adipisicing", "repellendus", "tempore", "repellat", "test", "corrupti", "amet");
+    $forbidden_words = $register_list;
     $paragraph_coins = [];
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
@@ -140,20 +144,42 @@ function split_paragraph($paragraph){
 
     $no_space_characters = array('.', ',', '!', '!', ':', ';');
 
+    $next_segment_text = (string)($segments_array[0]->t);
+    $segment_text = "";
+
     for ($i = 0; $i < $segments_count; $i++) {
-        $segment_text = (string)($segments_array[0]->t);
-        // вот тут не работает как надо
+        $segment_text = $next_segment_text;
+        if (isset($segments_array[1])){
+            $next_segment_text = (string)($segments_array[1]->t);
+        } else {
+            unset($next_segment_text);
+        }
         $segment_words = explode(" ", $segment_text);
-        //print_r($segment_words);
         $styles_tag = $segments_array[0]->rPr;
+        $word_object;
         for ($w = 0; $w < count($segment_words); $w++) {
             $word = $segment_words[$w];
-            //print_r(explode(" ", $word));
             if ($word) {
-                if ($w < count($segment_words)-1 && is_punctuation($segment_words[$w + 1])){
-                    $next_word = $segment_words[$w+1];
-                    $word = $word . $next_word;
-                    $segment_words[$w+1] = "";
+                // if (($w + 1) < count($segment_words) && is_punctuation($segment_words[$w + 1])){
+                //     $next_word = $segment_words[$w+1];
+                //     $word = $word . $next_word;
+                //     unset($segment_words[$w+1]);
+                // }
+                if ($w+1 < count($segment_words)){
+                    if (is_punctuation($segment_words[$w + 1])){
+                        $next_word = $segment_words[$w+1];
+                        $word = $word . $next_word;
+                        unset($segment_words[$w+1]);
+                    }
+                } else {
+                    $next_word = explode(" ", $next_segment_text)[0];
+                    if (is_punctuation($next_word)) {
+                        
+                        $word = $word . $next_word;
+                        $next_words = explode(" ", $next_segment_text);
+                        unset($next_words[0]);
+                        $next_segment_text = implode(" ", $next_words);
+                    }
                 }
                 $word_object = $paragraph->addChild("r");
                 sxml_append($word_object, $styles_tag);
@@ -163,6 +189,7 @@ function split_paragraph($paragraph){
         }
         unset($segments_array[0]);
     }
+    //die("testtest");
 }
 
 function extract_text(SimpleXMLElement $p){
@@ -225,5 +252,13 @@ if(process_xml()){
     header('Location: compress.php');
     //print_r($paragraph_coins);
 }
+
+
+// $test = array("sdf", ",", "ht,", "f");
+
+// foreach ($test as $t){
+//     echo $t . "  " . is_punctuation($t) . "<br>";
+// }
+
 
 ?>
