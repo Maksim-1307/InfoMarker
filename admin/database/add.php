@@ -3,6 +3,11 @@
 session_start();
 require_once '../../user/connect.php';
 
+if (!$_SESSION["user"]["is_admin"]) {
+    header('location: /');
+    exit();
+}
+
 $name = $_POST['name'];
 $about = $_POST['about'];
 

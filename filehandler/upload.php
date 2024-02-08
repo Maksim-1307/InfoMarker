@@ -3,6 +3,15 @@
 session_start();
 require_once 'settings.php';
 
+$REQUESTSLIMIT = 10;
+
+if (!isset($_SESSION["requests"])) $_SESSION["requests"] = 0;
+$_SESSION["requests"] += 1;
+if ($_SESSION["requests"] > $REQUESTSLIMIT && !isset($_SESSION["user"])){
+    header('Location: ../pages/limit.php');
+    exit();
+}
+
 unset($_SESSION["file"]);
 
 function deleteDir(string $dir): void

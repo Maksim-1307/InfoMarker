@@ -15,6 +15,7 @@
 
         if (!$_SESSION["user"]["is_admin"]) {
             header('Location: ../index.php');
+            exit();
         }
 
         require_once '../user/connect.php';
