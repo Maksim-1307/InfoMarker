@@ -4,9 +4,25 @@
 
 session_start();
 
-
 $colors = array();
 $paragraph_coins = array();
+
+$register_list = get_names_from_db();
+
+function get_names_from_db(){
+    require_once '../user/connect.php';
+    $request = "SELECT `name` FROM register";
+    $res = $connect->query($request);
+    $register_list = array();
+    if ($res->num_rows > 0) {
+        while ($row = $res->fetch_assoc()) {
+            array_push($register_list, $row['name']);
+        }
+    } else {
+        echo "rows: " . $res->num_rows > 0;
+    }
+    return $register_list;
+}
 
 function nice_color($color)
 {
@@ -64,9 +80,10 @@ function is_punctuation($t){
 
 function saveCoincidences($text){
     global $paragraph_coins;
+    global $register_list;
     $coinsidences = [];
 
-    $forbidden_words = array("Lorem", "adipisicing", "repellendus", "tempore", "repellat", "test", "corrupti", "amet");
+    $forbidden_words = $register_list;//array("Lorem", "adipisicing", "repellendus", "tempore", "repellat", "test", "corrupti", "amet");
     $paragraph_coins = [];
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
