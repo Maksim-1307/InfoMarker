@@ -43,18 +43,7 @@ function genColor()
     return $color;
 }
 
-function uniqColor(){
-    global $colors;
-    $color = sprintf("#%02x%02x%02x", mt_rand(180, 240), mt_rand(180, 240), mt_rand(180, 240));
-    // while (in_array($color, $colors)){
-    //     $color = sprintf("#%02x%02x%02x", mt_rand(180, 220), mt_rand(0, 255), mt_rand(0, 255));
-    // }
-    array_push($colors, $color);
-    return $color;
-}
-
-//test color funcution
-function getColor($word){
+function setColor($word){
     if (isset($_SESSION["coinsidences"][$word])){
         if (isset($_SESSION["coinsidences"][$word]["color"])){
             return $_SESSION["coinsidences"][$word]["color"];
@@ -82,7 +71,7 @@ function saveCoincidences($text){
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
         if (count($indices)){
-            $color = getColor($word);
+            $color = setColor($word);
             $paragraph_coins[$word] = array($indices, $color);
         }
     }
