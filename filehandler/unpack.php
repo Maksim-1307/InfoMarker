@@ -44,13 +44,14 @@ if (!mkdir($extractDir)) {
 if (!($zip->extractTo($extractDir))) {
     die("Не удалось открыть файл");
 } else {
+    //die();
     header('Location: process.php');
 }
 
 
 //header('Location: process.php');
 
-// 
+
 // $sDirectoryName = $_SESSION["file"]["cash_directory_relative_path"];
 
 ?>

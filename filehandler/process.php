@@ -172,13 +172,15 @@ function split_paragraph($paragraph){
                         unset($segment_words[$w+1]);
                     }
                 } else {
-                    $next_word = explode(" ", $next_segment_text)[0];
-                    if (is_punctuation($next_word)) {
-                        
-                        $word = $word . $next_word;
-                        $next_words = explode(" ", $next_segment_text);
-                        unset($next_words[0]);
-                        $next_segment_text = implode(" ", $next_words);
+                    if ($next_segment_text){
+                        $next_word = explode(" ", $next_segment_text)[0];
+                        if (is_punctuation($next_word)) {
+                            
+                            $word = $word . $next_word;
+                            $next_words = explode(" ", $next_segment_text);
+                            unset($next_words[0]);
+                            $next_segment_text = implode(" ", $next_words);
+                        }
                     }
                 }
                 $word_object = $paragraph->addChild("r");
@@ -230,7 +232,6 @@ function process_xml(){
                 $i = 0;
                 foreach ($paragraph->r as $segment) {
                     if (in_array($i, $coins[0])) {
-                        //print_r($coins[0]);
                         unset($segment->rPr->highlight);
                         $segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
                     }
@@ -250,7 +251,6 @@ if(process_xml()){
 //
     //die();
     header('Location: compress.php');
-    //print_r($paragraph_coins);
 }
 
 
