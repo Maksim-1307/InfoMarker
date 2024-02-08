@@ -53,6 +53,29 @@
                     <textarea name="about" cols="30" rows="5"></textarea><br><br>
                     <button type="submit">Добавить</button>
 
+                    <?php
+                    if (isset($_SESSION['error_message'])) {
+                    ?>
+                        <div class="segment">
+                            <div class="error">
+                                <?= $_SESSION['error_message']; ?>
+                            </div>
+                        </div>
+                    <?php
+                        unset($_SESSION['error_message']);
+                    }
+                    if (isset($_SESSION['success_message'])) {
+                    ?>
+                        <div class="segment">
+                            <div class="success">
+                                <?= $_SESSION['success_message']; ?>
+                            </div>
+                        </div>
+                    <?php
+                        unset($_SESSION['success_message']);
+                    }
+                    ?>
+
                 </form>
             </div>
         </div>

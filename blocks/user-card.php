@@ -35,7 +35,9 @@ if (session_status() === PHP_SESSION_NONE) die('No active session');
 
             <?php if ($_SESSION['user']['is_admin']) {
             ?>
-                <div class="user-card__status">админ</div>
+                <div class="user-card__status">
+                    <a href="/pages/admin.php">админ-панель</a>
+                </div>
             <?php
             } ?>
         </div>
