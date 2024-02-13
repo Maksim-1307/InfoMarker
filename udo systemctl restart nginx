@@ -1,0 +1,18 @@
+[0;1;31m×[0m nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Sat 2024-02-10 21:59:23 MSK; 7s ago
+       Docs: man:nginx(8)
+    Process: 42820 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 42821 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; [0;1;31m(code=exited, status=1/FAILURE)[0m
+        CPU: 52ms
+
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to 0.0.0.0:82 failed (98: Unknown error)
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to [::]:82 failed (98: Unknown error)
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to [::]:443 failed (98: Unknown error)
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to 0.0.0.0:443 failed (98: Unknown error)
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Unknown error)
+Feb 10 21:59:22 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] bind() to [::]:80 failed (98: Unknown error)
+Feb 10 21:59:23 v2334000.hosted-by-vdsina.ru nginx[42821]: nginx: [emerg] still could not bind()
+Feb 10 21:59:23 v2334000.hosted-by-vdsina.ru systemd[1]: [0;1;39m[0;1;31m[0;1;39mnginx.service: Control process exited, code=exited, status=1/FAILURE[0m
+Feb 10 21:59:23 v2334000.hosted-by-vdsina.ru systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mnginx.service: Failed with result 'exit-code'.[0m
+Feb 10 21:59:23 v2334000.hosted-by-vdsina.ru systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start A high performance web server and a reverse proxy server.[0m

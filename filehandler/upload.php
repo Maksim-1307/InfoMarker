@@ -42,6 +42,7 @@ if (is_dir($rel_path)) {
 }
 
 if (!mkdir($rel_path)) {
+echo $rel_path;
     die("Ошибка на сервере. Невозможно создать директрию (filehandler/upload.php)");
 }
 
