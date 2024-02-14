@@ -52,7 +52,7 @@ function genColor()
     while (!nice_color($color)) {
         $color = array(mt_rand($min, $max), mt_rand($min, $max), mt_rand($min, $max));
     }
-    $color = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+    $color = sprintf("%02x%02x%02x", $color[0], $color[1], $color[2]);
     while(in_array($color, $colors)){
         $color = genColor();
     }
@@ -184,7 +184,13 @@ function split_paragraph($paragraph){
                     }
                 }
                 $word_object = $paragraph->addChild("r");
-                sxml_append($word_object, $styles_tag);
+                //$word_object->addAttribute("w:rsidR", "00711293");
+                if ($styles_tag){
+                    sxml_append($word_object, $styles_tag);
+                } else {
+                    $word_object->addChild("w:rPr", "");
+                }
+            
                 $text = $word_object->addChild("t", $word . " ");
                 $text->addAttribute("xml:space", "preserve", "xml");
             }
@@ -233,7 +239,15 @@ function process_xml(){
                 foreach ($paragraph->r as $segment) {
                     if (in_array($i, $coins[0])) {
                         unset($segment->rPr->highlight);
-                        $segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
+                        //$segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
+                        $glow = $segment->rPr->addChild("w14:glow", null, "http://schemas.microsoft.com/office/word/2010/wordml");
+                        $glow->addAttribute("w14:rad", "250000", "http://schemas.microsoft.com/office/word/2010/wordml");
+                        $glow->addChild("w14:srgbClr w14:val=\"". $coins[1] ."\"");
+                        /*
+                            <w14:glow w14:rad="254000">
+                                <w14:srgbClr w14:val="54FFC6" />
+                            </w14:glow>
+                        */
                     }
                     $i += 1;
                 }

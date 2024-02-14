@@ -7,7 +7,7 @@
     foreach ($_SESSION["coinsidences"] as $name => $data) {
         //$color = $paragraph_coins[$name]["color"];
         if ($data) {
-            echo "<div class='report__row' style='background:" . $data["color"] . "'><div>" . $name . "</div><div>" . $data["count"] . "</div></div>";
+            echo "<div class='report__row' style='background:#" . $data["color"] . "'><div>" . $name . "</div><div>" . $data["count"] . "</div></div>";
         }
     }
     //echo isset() 
