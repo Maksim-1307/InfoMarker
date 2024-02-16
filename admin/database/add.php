@@ -17,7 +17,7 @@ if (!(isset($_POST['name']) && isset($_POST['about']))){
     $_SESSION['error_message'] = "Ошибка. Отправьте форму повторно";
     header('Location: ../../pages/admin.php');
 } else {
-    mysqli_query($connect, "INSERT INTO `register` (`name`, `about`) VALUES ('$name', '$about')");
+    mysqli_query($connect, "INSERT INTO `register` (`name`) VALUES ('$name')");
     $_SESSION['success_message'] = "Элемент успешно добавлен";
     header('Location: ../../pages/admin.php');
 }

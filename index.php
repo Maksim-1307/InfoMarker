@@ -1,10 +1,5 @@
 <?php
 
-// require_once('fucntions.php');
-// require_once('fileLoader/filesList.php');
-
-//print_files_list();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -117,6 +117,7 @@ function coincidencesByName($str1, $str2){
 
     if (!isset($_SESSION["coinsidences"][$str2])){
         $_SESSION["coinsidences"][$str2] = [];
+        echo "considences set to empty array";
     }
 
     for ($i = 0; $i < $wordsCount; $i++){
@@ -246,10 +247,9 @@ function process_xml(){
 
 }
 
-unset($_SESSION["coinsidences"]);
+//unset($_SESSION["coinsidences"]);
+$_SESSION["coinsidences"] = [];
 if(process_xml()){
-//
-    //die();
     header('Location: compress.php');
 }
 
