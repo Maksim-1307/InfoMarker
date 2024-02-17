@@ -145,6 +145,9 @@ function split_paragraph($paragraph){
 
     $no_space_characters = array('.', ',', '!', '!', ':', ';');
 
+    if (!isset($segments_array[0]->t)){
+        return null;
+    }
     $next_segment_text = (string)($segments_array[0]->t);
     $segment_text = "";
 
@@ -173,7 +176,7 @@ function split_paragraph($paragraph){
                         unset($segment_words[$w+1]);
                     }
                 } else {
-                    if ($next_segment_text){
+                    if (isset($next_segment_text)){
                         $next_word = explode(" ", $next_segment_text)[0];
                         if (is_punctuation($next_word)) {
                             
