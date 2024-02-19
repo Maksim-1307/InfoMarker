@@ -23,6 +23,38 @@ function deleteDir(string $dir): void
     rmdir($dir);
 }
 
+function unzip($from, $to){
+    $zip = new ZipArchive;
+
+    if (!($zip->open($path))){
+        return false;
+    }
+
+    $aFileName = explode('/', $to);
+    $aFileName = $aFileName[end($aFileName)];
+
+    // $fileFullName = $_SESSION["file"]["currentfile"];
+    // $aFileName = explode('.', $fileFullName)[0];
+
+    //$_SESSION["file"]["unzip_folder_name"] = $aFileName;
+
+    //$extractDir = $_SESSION["file"]["cash_directory_relative_path"] . $aFileName;
+
+    if (is_dir($to)) {
+        deleteDir($to);
+    }
+
+    if (!mkdir($to)) {
+        die("Не удалось открыть файл");
+    }
+
+    if (!($zip->extractTo($to))) {
+        die("Не удалось открыть файл");
+    } else {
+        header('Location: process.php');
+    }
+}
+
 $zip = new ZipArchive;
 $zip->open($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]);
 

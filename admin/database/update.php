@@ -1,56 +1,73 @@
 <?php
 
-require '../../vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 
-function download_file($url){
-    $file_name = explode("/", $url);
-    $file_name = end($file_name);
-    $arrContextOptions=array(
-    "ssl"=>array(
-        "verify_peer"=>false,
-        "verify_peer_name"=>false,
-        ),
-    ); 
-    if (file_put_contents($file_name, file_get_contents($url, false, stream_context_create($arrContextOptions)))) { 
-        return $file_name;
-    } else { 
-        return false;
-    } 
-}
 
-function parse_docx_table($path){
-    if ($phpWord = \PhpOffice\PhpWord\IOFactory::load($path)){
+function make_short_names($full_name){
 
-        var_dump($phpWord->);
-    } else {
-        return 0;
+    //текст заключенный в ковычки "" и «» является коротким именем
+
+    $quotes = array('"', '«', '»');
+    $short_names = array();
+    $flag = false;
+    $str = "";
+    if (in_array($full_name[0], $quotes)){
+        $flag = !$flag;
+    }
+    foreach (mb_str_split($full_name) as $char){
+        if ($flag){
+            $str = $str . $char;
+        } 
+        if (in_array($char, $quotes)){
+            $flag = !$flag;
+            if ($flag) $str = $str . $char;
+        }
+        if (!$flag && $str){
+            array_push($short_names, $str);
+            $str = "";
+        }
     }
 
+    return $short_names;
 }
 
 
-$curl = curl_init("https://minjust.gov.ru/ru/documents/7756/");
-curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-ob_start();
-$html = curl_exec($curl);
-ob_end_clean();
-curl_close($curl);
+function update_register(){
+    $path = download_file("https://minjust.gov.ru/uploaded/files/perechen-inostrannyih-i-mezhdunarodnyih-nepravitelstvennyih-1202.docx");
+    
+    if (!unzip($path, "unzipped")){
+        return "Ошибка! Не удается загрузить реестр";
+    }
 
-echo $html;
+    $register = array();
 
-$dom = new domDocument;
-$dom->loadHTML("https://minjust.gov.ru/ru/documents/7756/");
+    $xml = simplexml_load_file("unzipped/word/document.xml", null, 0, 'w', true);
+    foreach($xml->body->tbl->tr as $elem){
+        $full_name = "";
+        foreach($elem->tc[3]->p->r as $paragraph){
+            $full_name = $full_name . (string)$paragraph->t;
+            //$short_name = explode("\"", $name);
+            //$name;
+            //echo $short_name[0];
+            //var_dump((string)$elem->tc[3]->p->r->t);
+        }
+        array_push($register, $full_name);
+        $register = array_merge($register, make_short_names($full_name));
+        // echo $full_name;
+        // // $short_name = preg_replace('/\((.+?)\)/i', '()', $full_name);
+        // // echo "<br><br>" . $short_name;
+        // var_dump(make_short_names($full_name));
+        // echo "<br><br><br><br><br><br><br><br>";
+    }
 
-$table_class = "table-bordered";
 
-// $xpath = new DomXPath($dom);
-// $nodes = $finder->query("//*[contains(@class, '')]");
-// $list = $finder->query("//*[contains(@class, '$classname')]");
-$list = $dom->getElementsByTagName('html');
+    return $register;
+}
 
-var_dump(parse_url("https://minjust.gov.ru/ru/documents/7756/"));
-
-$path = download_file("https://minjust.gov.ru/uploaded/files/perechen-inostrannyih-i-mezhdunarodnyih-nepravitelstvennyih-1202.docx");
-parse_docx_table($path);
+$names = update_register();
+foreach($names as $name){
+    echo $name . "<br><br>";
+}
 
 //var_dump($dom);
