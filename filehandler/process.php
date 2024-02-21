@@ -2,6 +2,8 @@
 
 <?php
 
+set_time_limit(300);
+
 session_start();
 
 $colors = array();
@@ -105,37 +107,55 @@ function coincidence($str1, $str2){
     return (float)((float)($len - $lev) / (float)$len);
 }
 
-function coincidencesByName($str1, $str2){
+function coincidencesByName($text, $word)
+{
     $MINCOINS = 0.75;
 
     $result = [];
-    $words = explode(' ', $str1);
-    $words2 = explode(' ', $str2);
-    $count = count($words2);
-    $wordsCount = count($words);
-    //$_SESSION["coinsidences"] = []
+    $textArray = explode(' ', $text);
+    $wordArray = explode(' ', $word);
+    $textLen = count($textArray);
+    $wordLen = count($wordArray);
 
-    if (!isset($_SESSION["coinsidences"][$str2])){
-        $_SESSION["coinsidences"][$str2] = [];
-        echo "considences set to empty array";
+    if($wordLen > $textLen){
+        return [];
     }
 
-    for ($i = 0; $i < $wordsCount; $i++){
-        $word = "";
-        $coins = $MINCOINS;
-        $res = [];
-        for ($j = 0; $j < $count; $j++){
-            $word = $words2[$j];
-            $coins2 = coincidence($word, $words[$i + $j]);
-            if ($coins2 >= $coins){
-                $coins = $coins2;
-                if ($coins >= $MINCOINS) {
-                    array_push($result, $i + $j);
-                    $_SESSION["coinsidences"][$str2]["count"] += 1;
-                }
+    if (!isset($_SESSION["coinsidences"][$word])) {
+        $_SESSION["coinsidences"][$word] = [];
+        //echo "considences set to empty array";
+    }
+
+    $lastCoins = 0;
+    for ($i = 0; ($i + $wordLen) <= $textLen; $i++){
+        $substr = "";
+        for ($j = 0; $j < $wordLen; $j++){
+            if ($substr){
+                $substr = $substr . " " . $textArray[$i + $j];
+            } else {
+                $substr = $substr . $textArray[$i + $j];
             }
         }
-    };
+        $coins = coincidence($substr, $word);
+        if ($coins >= $lastCoins){
+            if ($coins >= $MINCOINS){
+                $lastCoins = $coins;
+            }
+        } else {
+            for($j = $i-1; $j+1 < $i + $wordLen; $j++){
+                array_push($result, $j);
+            }
+            $lastCoins = 0;
+            $i = $i + $wordLen - 1;
+        }
+        //for the last iteration
+        if (($i + $wordLen) == $textLen && $lastCoins >= $MINCOINS) {
+            for ($j = $i - 1; $j + 1 < $i + $wordLen; $j++) {
+                array_push($result, $j+1);
+            }
+        }
+    }
+
     return $result;
 }
 

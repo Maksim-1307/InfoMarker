@@ -2,6 +2,7 @@
 
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/user/connect.php';
 
 
 function make_short_names($full_name){
@@ -34,6 +35,17 @@ function make_short_names($full_name){
 
 
 function update_register(){
+    global $connect;
+
+    if ($data = mysqli_query($connect, "SELECT * FROM register")){
+        $numRows = mysqli_num_rows($data);
+        if ($numRows){
+            $connect->query("TRUNCATE TABLE register;");
+        }
+    } else {
+        return [];
+    }
+
     $path = download_file("https://minjust.gov.ru/uploaded/files/perechen-inostrannyih-i-mezhdunarodnyih-nepravitelstvennyih-1202.docx");
     
     if (!unzip($path, "unzipped")){
@@ -47,18 +59,9 @@ function update_register(){
         $full_name = "";
         foreach($elem->tc[3]->p->r as $paragraph){
             $full_name = $full_name . (string)$paragraph->t;
-            //$short_name = explode("\"", $name);
-            //$name;
-            //echo $short_name[0];
-            //var_dump((string)$elem->tc[3]->p->r->t);
         }
         array_push($register, $full_name);
         $register = array_merge($register, make_short_names($full_name));
-        // echo $full_name;
-        // // $short_name = preg_replace('/\((.+?)\)/i', '()', $full_name);
-        // // echo "<br><br>" . $short_name;
-        // var_dump(make_short_names($full_name));
-        // echo "<br><br><br><br><br><br><br><br>";
     }
 
 
@@ -67,6 +70,7 @@ function update_register(){
 
 $names = update_register();
 foreach($names as $name){
+    mysqli_query($connect, "INSERT INTO `register` (`name`) VALUES ('$name')");
     echo $name . "<br><br>";
 }
 
