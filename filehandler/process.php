@@ -2,7 +2,7 @@
 
 <?php
 
-set_time_limit(300);
+set_time_limit(86400);
 
 session_start();
 
