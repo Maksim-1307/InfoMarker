@@ -3,6 +3,8 @@
 
 session_start();
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+
 function make_docx()
 {
     //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
@@ -21,6 +23,7 @@ function make_docx()
 }
 
 make_docx();
+save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
 header('Location: ../pages/file.php');
 
 ?>

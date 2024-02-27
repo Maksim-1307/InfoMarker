@@ -1,5 +1,6 @@
 <?php 
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
 function unzip($from, $to){
     $zip = new ZipArchive;
@@ -59,6 +60,12 @@ function download_file($url){
     } else { 
         return false;
     } 
+}
+
+function save_html($docx, $to){
+    $phpWord = \PhpOffice\PhpWord\IOFactory::load($docx);
+    $htmlWriter = new \PhpOffice\PhpWord\Writer\HTML($phpWord);
+    $htmlWriter->save($to);
 }
 
 ?>
