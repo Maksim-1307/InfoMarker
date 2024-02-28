@@ -6,8 +6,11 @@ set_time_limit(86400);
 
 session_start();
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+
 $colors = array();
 $paragraph_coins = array();
+$document_coins = array();
 
 $register_list = get_names_from_db();
 
@@ -86,10 +89,12 @@ function is_punctuation($t){
 
 function saveCoincidences($text){
     global $paragraph_coins;
+    global $document_coins;
     global $register_list;
     $coinsidences = [];
 
     $forbidden_words = $register_list;
+    array_push($document_coins, $paragraph_coins);
     $paragraph_coins = [];
     foreach ($forbidden_words as $word){
         $indices = coincidencesByName($text, $word);
@@ -241,6 +246,23 @@ function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
     }
 }
 
+function make_docx()
+{
+    //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
+    $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
+    $zip = new ZipArchive;
+    $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    echo $dir;
+
+    $options = array('remove_path' => $dir);
+    $zip->addGlob($dir . '/**/*.*', 0, $options);
+    $zip->addGlob($dir . '/*.*', 0, $options);
+    $zip->addGlob($dir . '/_rels/.rels', 0, $options);
+
+    $zip->close();
+}
+
 function process_xml(){
 
     global $paragraph_coins;
@@ -284,18 +306,56 @@ function process_xml(){
 
 }
 
-//unset($_SESSION["coinsidences"]);
-$_SESSION["coinsidences"] = [];
-if(process_xml()){
-    header('Location: compress.php');
+function process_html(){
+
+    global $document_coins;
+
+    $dom = new DOMDocument();
+    $path = $_SESSION["file"]["cash_directory_relative_path"] . "content.html";
+    $html = file_get_contents($path);
+    if (!$html) return 0;
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+
+    $elements = $dom->getElementsByTagName("p");
+    for ($i = 0; $i < count($elements); $i++){
+        $paragraph = $elements[$i];
+        $words = $paragraph->getElementsByTagName("span");
+
+        if ($i+1 < count($document_coins)){
+            $coinsidences = $document_coins[$i+1];
+        } else {
+            $coinsidences = null;
+        }
+
+        if ($coinsidences){
+            foreach ($coinsidences as $coin) {
+                $j = 0;
+                foreach($words as $word){
+                    if (in_array($j, $coin[0])){
+                        $styles = $word->getAttribute("style");
+                        $word->setAttribute("style", $styles . "background-color: #". $coin[1] .";");
+                    }
+                    $j++;
+                }
+            }
+        }
+    }
+    $html = $dom->saveHTML();
+    //file_put_contents($path, $html);
+    $file = fopen($path, "w");
+    fwrite($file, $html);
+    fclose($file);
+    //echo $dom->saveHTML();
 }
 
+//unset($_SESSION["coinsidences"]);
+$_SESSION["coinsidences"] = [];
 
-// $test = array("sdf", ",", "ht,", "f");
-
-// foreach ($test as $t){
-//     echo $t . "  " . is_punctuation($t) . "<br>";
-// }
+process_xml();
+make_docx();
+save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
+process_html();
+header('Location: ../pages/file.php');
 
 
 ?>

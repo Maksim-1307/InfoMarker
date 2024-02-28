@@ -68,4 +68,17 @@ function save_html($docx, $to){
     $htmlWriter->save($to);
 }
 
+function print_array($arr, $tab = 0)
+{
+    foreach ($arr as $key => $element) {
+        if (gettype($element) == 'array') {
+            print(str_repeat(' --- ', $tab) . "<b>" . strtoupper($key) . "</b>" . ":<br>");
+            print_array($element, $tab + 1);
+        } else {
+            $res = "" . str_repeat(' --- ', $tab) . "[" . $key . "] " . $element . "<br>";
+            echo $res;
+        }
+    }
+}
+
 ?>

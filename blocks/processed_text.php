@@ -6,4 +6,4 @@ $wordfile = \PhpOffice\PhpWord\IOFactory::load($_SESSION["file"]["cash_directory
 $htmlWriter = new \PhpOffice\PhpWord\Writer\HTML($wordfile);
 $htmlWriter->save('worddocument.html');
 
-echo file_get_contents('worddocument.html');
+echo file_get_contents($_SESSION["file"]["cash_directory_relative_path"] . "content.html");
