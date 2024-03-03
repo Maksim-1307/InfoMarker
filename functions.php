@@ -81,4 +81,32 @@ function print_array($arr, $tab = 0)
     }
 }
 
+function make_short_names($full_name){
+
+    //текст заключенный в ковычки "" и «» является коротким именем
+
+    $quotes = array('"', '«', '»');
+    $short_names = array();
+    $flag = false;
+    $str = "";
+    if (in_array($full_name[0], $quotes)){
+        $flag = !$flag;
+    }
+    foreach (mb_str_split($full_name) as $char){
+        if ($flag){
+            $str = $str . $char;
+        } 
+        if (in_array($char, $quotes)){
+            $flag = !$flag;
+            if ($flag) $str = $str . $char;
+        }
+        if (!$flag && $str){
+            array_push($short_names, $str);
+            $str = "";
+        }
+    }
+
+    return $short_names;
+}
+
 ?>
