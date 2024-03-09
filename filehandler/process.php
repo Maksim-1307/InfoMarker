@@ -109,12 +109,16 @@ function saveCoincidences($text){
 function coincidence($str1, $str2){
     $len = (float)max(strlen($str1), strlen($str2));
     $lev = (float)levenshtein($str1, $str2);
-    return (float)((float)($len - $lev) / (float)$len);
+    if ($len){ 
+        return (float)((float)($len - $lev) / (float)$len);
+    } else {
+        return 0;
+    }
 }
 
 function coincidencesByName($text, $word)
 {
-    $MINCOINS = 0.75;
+    $MINCOINS = 0.85;
 
     $result = [];
     $textArray = explode(' ', $text);
@@ -152,6 +156,11 @@ function coincidencesByName($text, $word)
             }
             $lastCoins = 0;
             $i = $i + $wordLen - 1;
+            if (!isset($_SESSION["coinsidences"][$word]["count"])) {
+                $_SESSION["coinsidences"][$word]["count"] = 1;
+            } else  {
+                $_SESSION["coinsidences"][$word]["count"] += 1;
+            }
         }
         //for the last iteration
         if (($i + $wordLen) == $textLen && $lastCoins >= $MINCOINS) {

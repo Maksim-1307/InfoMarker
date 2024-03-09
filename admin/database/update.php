@@ -3,6 +3,7 @@
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/user/connect.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/database/update-inoagents.php';
 
 
 function update_register(){
@@ -39,7 +40,7 @@ function update_register(){
     return $register;
 }
 
-$names = update_register();
+$names = array_merge(parse_inoagents(), update_register());
 foreach($names as $name){
     mysqli_query($connect, "INSERT INTO `register` (`name`) VALUES ('$name')");
     echo $name . "<br><br>";
