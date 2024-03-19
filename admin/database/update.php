@@ -4,6 +4,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/user/connect.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/database/update-inoagents.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/database/update-terrorists.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/admin/database/extremists.php';
 
 
 function update_register(){
@@ -41,6 +43,8 @@ function update_register(){
 }
 
 $names = array_merge(parse_inoagents(), update_register());
+$names = array_merge($names, get_terrorists());
+$names = array_merge($names, get_extremists());
 foreach($names as $name){
     mysqli_query($connect, "INSERT INTO `register` (`name`) VALUES ('$name')");
     echo $name . "<br><br>";

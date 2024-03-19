@@ -85,7 +85,7 @@ function make_short_names($full_name){
 
     //текст заключенный в ковычки "" и «» является коротким именем
 
-    $quotes = array('"', '«', '»');
+    $quotes = array('"', '«', '»'); // „ “
     $short_names = array();
     $flag = false;
     $str = "";
@@ -93,20 +93,78 @@ function make_short_names($full_name){
         $flag = !$flag;
     }
     foreach (mb_str_split($full_name) as $char){
-        if ($flag){
-            $str = $str . $char;
-        } 
         if (in_array($char, $quotes)){
             $flag = !$flag;
-            if ($flag) $str = $str . $char;
+            //if ($flag) $str = $str . $char;
+        } else {
+            if ($flag){
+                $str = $str . $char;
+            } 
         }
         if (!$flag && $str){
             array_push($short_names, $str);
+            array_push($short_names, '«' . $str . '»');
             $str = "";
         }
     }
 
     return $short_names;
+}
+
+function is_upper($char){
+    if (!$char) return false;
+    if (mb_ord($char) >= mb_ord('A') && mb_ord($char) <= mb_ord('Z') || mb_ord($char) >= mb_ord('А') && mb_ord($char) <= mb_ord('Я')){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function is_lower($char){
+    if (mb_ord($char) >= mb_ord('a') && mb_ord($char) <= mb_ord('z') || mb_ord($char) >= mb_ord('а') && mb_ord($char) <= mb_ord('я')){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function is_letter($char){
+    return is_upper($char) || is_lower($char);
+}  
+
+function is_russian($char){
+    if (mb_ord($char) >= mb_ord('а') && mb_ord($char) <= mb_ord('я') || mb_ord($char) >= mb_ord('А') && mb_ord($char) <= mb_ord('Я')){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function is_english($char){
+    if (mb_ord($char) >= mb_ord('a') && mb_ord($char) <= mb_ord('z') || mb_ord($char) >= mb_ord('A') && mb_ord($char) <= mb_ord('Z')){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function make_lowercase($str){
+    $dRus = mb_ord('а') - mb_ord('А');
+    $dEn = mb_ord('a') - mb_ord('A');
+    $result = "";
+    for ($i = 0; $i < mb_strlen($str); $i++){
+        $char = mb_substr($str, $i, 1, "UTF-8");
+        if (is_upper($char)){
+            if (is_english($char)){
+                $char = mb_chr(mb_ord($char, "UTF-8") + $dEn);
+            }
+            if (is_russian($char)){
+                $char = mb_chr(mb_ord($char, "UTF-8") + $dRus);
+            }
+        }
+        $result .= $char;
+    }
+    return $result;
 }
 
 ?>
