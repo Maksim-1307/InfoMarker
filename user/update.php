@@ -2,6 +2,10 @@
 
 session_start();
 
+if (!isset($_SESSION['user'])){
+    header('Location: signin.php');
+}
+
 require_once 'connect.php';
 
 $login = $_POST['login'];
@@ -14,7 +18,7 @@ $isOk = true;
 $check_username_request = "SELECT 1 FROM users WHERE login = '$login'";
 $result = $connect->query($check_username_request);
 echo mysqli_num_rows($result);
-if (mysqli_num_rows($result)) {
+if (mysqli_num_rows($result) && $_SESSION["user"]["login"] != $login) {
     $_SESSION['error_message'] = "Этот логин уже занят, придумайте другой";
     $isOk = false;
     header('Location: ../pages/user.php');

@@ -107,8 +107,8 @@ function saveCoincidences($text){
 }
 
 function coincidence($str1, $str2){
-    // $str1 = make_lowercase($str1);
-    // $str2 = make_lowercase($str2);
+    $str1 = make_lowercase($str1);
+    $str2 = make_lowercase($str2);
     $len = (float)max(strlen($str1), strlen($str2));
     $lev = (float)levenshtein($str1, $str2);
     if ($len){ 
@@ -370,7 +370,7 @@ $_SESSION["coinsidences"] = [];
 process_xml();
 make_docx();
 save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
-process_html();
+//process_html();
 header('Location: ../pages/file.php');
 
 
