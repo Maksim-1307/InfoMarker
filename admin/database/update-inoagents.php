@@ -51,6 +51,7 @@ function parse_inoagents(){
                 } else {
                     array_push($register, $name);
                     $register = array_merge($register, make_short_names($name));
+                    $register = array_merge($register, get_english_substr($name));
                 }
             }
         }

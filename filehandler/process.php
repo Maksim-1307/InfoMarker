@@ -120,7 +120,7 @@ function coincidence($str1, $str2){
 
 function coincidencesByName($text, $word)
 {
-    $MINCOINS = 0.8;
+    $MINCOINS = 0.75;
 
     $result = [];
     $textArray = explode(' ', $text);

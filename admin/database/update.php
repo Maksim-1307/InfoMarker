@@ -36,6 +36,7 @@ function update_register(){
         }
         array_push($register, $full_name);
         $register = array_merge($register, make_short_names($full_name));
+        $register = array_merge($register, get_english_substr($full_name));
     }
 
 

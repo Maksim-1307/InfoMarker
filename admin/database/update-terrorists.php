@@ -26,6 +26,7 @@ function get_terrorists(){
                 $full_name = $row->getElementsByTagName("td")[1]->textContent;
                 array_push($register, $full_name);
                 $register = array_merge($register, make_short_names($full_name));
+                $register = array_merge($register, get_english_substr($full_name));
             }
         }
     }

@@ -30,6 +30,7 @@ function get_extremists(){
         foreach($rows as $row){
             $name = $row->textContent . "<br>";
             $register = array_merge($register, make_short_names($name));
+            $register = array_merge($register, get_english_substr($name));
         }
     }
     return $register;

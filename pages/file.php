@@ -13,6 +13,7 @@
         <?php require '../blocks/header.php' ?>
         <section>
             <div class="container">
+                <?php require '../blocks/processed_text.php' ?>
                 <?php require '../blocks/download_file.php' ?>
                 <?php require '../blocks/report.php'?>
             </div>

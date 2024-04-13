@@ -15,6 +15,7 @@
     <div class="wrapper">
         <?php
         require 'blocks/header.php';
+        require 'blocks/layout-preview.php';
         require 'blocks/fileloader.php';
         ?>
     </div>

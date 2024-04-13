@@ -148,7 +148,7 @@ function is_english($char){
     }
 }
 
-function make_lowercase($str){
+function make_lowercase_old($str){
     $dRus = mb_ord('а') - mb_ord('А');
     $dEn = mb_ord('a') - mb_ord('A');
     $result = "";
@@ -163,6 +163,182 @@ function make_lowercase($str){
             }
         }
         $result .= $char;
+    }
+    return $result;
+}
+
+
+function make_lowercase($str){
+    $charTransform = array(
+        'A' => 'a',
+        'B' => 'b',
+        'C' => 'c',
+        'D' => 'd',
+        'E' => 'e',
+        'F' => 'f',
+        'G' => 'g',
+        'H' => 'h',
+        'I' => 'i',
+        'J' => 'j',
+        'K' => 'k',
+        'L' => 'l',
+        'M' => 'm',
+        'N' => 'n',
+        'O' => 'o',
+        'P' => 'p',
+        'Q' => 'q',
+        'R' => 'r',
+        'S' => 's',
+        'T' => 't',
+        'U' => 'u',
+        'V' => 'v',
+        'W' => 'w',
+        'X' => 'x',
+        'Y' => 'y',
+        'Z' => 'z',
+
+        'А' => 'а',
+        'Б' => 'б',
+        'В' => 'в',
+        'Г' => 'г',
+        'Д' => 'д',
+        'Ж' => 'ж',
+        'З' => 'з',
+        'И' => 'и',
+        'К' => 'к',
+        'Л' => 'л',
+        'М' => 'м',
+        'Н' => 'н',
+        'О' => 'о',
+        'П' => 'п',
+        'Р' => 'р',
+        'С' => 'с',
+        'Т' => 'т',
+        'У' => 'у',
+        'Ф' => 'ф',
+        'Х' => 'х',
+        'Ц' => 'ц',
+        'Ч' => 'ч',
+        'Ш' => 'ш',
+        'Щ' => 'щ',
+        'Ъ' => 'ъ',
+        'Ы' => 'ы',
+        'Ь' => 'ь',
+        'Э' => 'э',
+        'Ю' => 'ю',
+        'Я' => 'я'
+    );
+    $result = "";
+    foreach (mb_str_split($str) as $char){
+        if (array_key_exists($char, $charTransform)){
+            $result .= $charTransform[$char];
+        } else {
+            $result .= $char;
+        }
+    }
+    return $result;
+}
+
+function get_abbreviations($str){
+    $uppercase = array(
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z',
+
+        'А',
+        'Б',
+        'В',
+        'Г',
+        'Д',
+        'Ж',
+        'З',
+        'И',
+        'К',
+        'Л',
+        'М',
+        'Н',
+        'О',
+        'П',
+        'Р',
+        'С',
+        'Т',
+        'У',
+        'Ф',
+        'Х',
+        'Ц',
+        'Ч',
+        'Ш',
+        'Щ',
+        'Ъ',
+        'Ы',
+        'Ь',
+        'Э',
+        'Ю',
+        'Я'
+    );
+
+    $result = array();
+    $abbreviation = "";
+
+    foreach (mb_str_split($str) as $char){
+        if (in_array($char, $uppercase)){
+            $abbreviation .= $char;
+        } else {
+            if ($abbreviation){
+                if (mb_strlen($abbreviation) > 1) {
+                    array_push($result, $abbreviation);
+                }
+                $abbreviation = "";
+            }
+        }
+    }
+
+    return $result;
+
+}
+
+function get_english_substr($str){
+    $result = array();
+    // if contains non-ASCII characters (check for russian letters)
+    if(!mb_detect_encoding($str, 'ASCII', true)){
+        $words = explode(' ', $str);
+        $name = "";
+        for ($i = 0; $i < count($words); $i++){
+            if(mb_detect_encoding($words[$i], 'ASCII', true)){
+                $name .= $words[$i] . " ";
+                if($i+1 == count($words)){
+                    array_push($result, substr($name, 0, -1));
+                }
+            } else {
+                if ($name) array_push($result, substr($name, 0, -1));
+                $name = "";
+            }
+        }
+    } else {
+        return [];
     }
     return $result;
 }

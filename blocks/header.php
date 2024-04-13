@@ -9,9 +9,4 @@ session_start();
         </div>
         <?php require 'user-card.php'; ?>
     </div>
-    <div class="container">
-        <p class="warning">
-            Это <b>демонстрационная</b> версия сайта, призванная показать в первую очередь его функционал, работа над интерфейсом будет произведена позже 
-        </p>
-    </div>
 </header>
