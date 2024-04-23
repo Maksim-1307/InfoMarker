@@ -11,7 +11,6 @@
                     if (str_contains($file, '.html')){
                         echo "<a href='/layout/". $file ."'>" . $file . "</a><br>";
                     }
-                    
                 }
             ?>
         </div>
