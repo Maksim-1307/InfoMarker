@@ -6,3 +6,7 @@ tasks.txt
 user_cash_*
 pages/worddocument.html
 secret.php
+session/*
+vendor/*
+admin/database/unzip
+admin/database/unzipped
