@@ -31,6 +31,10 @@ if ($password === $password_confirm){
         // $is_OK = false;
         $image_path = '';
     }
+    if(!@is_array(getimagesize($image_path))){
+        unlink($image_path);
+        die();
+    } 
 
     if ($is_OK){
         mysqli_query($connect, "INSERT INTO `users` (`id`, `login`, `email`, `full_name`, `password`, `avatar`) VALUES (NULL, '$login', '$email', '$full_name', '$password', '$image_path')");
