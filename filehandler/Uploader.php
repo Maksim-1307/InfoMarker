@@ -1,6 +1,6 @@
 <?php 
 
-// requires started session
+require_once '../functions.php';
 
 class Uploader{
 
@@ -9,6 +9,7 @@ class Uploader{
         "max_size" => 10, // in Mb
         "allow_rewrite" => false,
         "allow_create_dir" => true,
+
         // default: filename.ext  
         // if defined: prefix + server time
         "unque_name_prefix" => null, 
@@ -27,10 +28,11 @@ class Uploader{
         return true;
     }
     
-    public function save_file($name, $savePath, $errCallback){
+    public function save_file($name, $savePath, $errCallback = null){
         try {
             $file = $_FILES[$name];
-            var_dump($_FILES);
+            $file["name"] = transliterate($file["name"]);
+            if (!$file) throw new Exception("\$_FILES is empty");
             if (!$this->check_file($file)) return false;
             if (!is_dir($savePath)){
                 if (!$this->rules["allow_create_dir"]){
@@ -60,6 +62,6 @@ class Uploader{
 }
 
 $TestUploader = new Uploader();
-$TestUploader->set_rule("allowed_extensios", ["txt", "rtf", "jpeg", "jpg", "png"]);
+$TestUploader->set_rule("allowed_extensios", ["docx", "doc", "word"]);
 
 ?>

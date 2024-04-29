@@ -11,8 +11,8 @@ function make_docx()
     $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
     $zip = new ZipArchive;
     $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-    echo $dir;
+                            
+    echo $dir;                  
 
     $options = array('remove_path' => $dir);
     $zip->addGlob($dir . '/**/*.*', 0, $options);

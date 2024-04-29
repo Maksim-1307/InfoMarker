@@ -9,6 +9,10 @@
                 <div>перетаскивания пока нет</div>
 
             </form>
+            <form action="testing/handle.php" method="post" enctype='multipart/form-data'>
+                <input type="file" name="file">
+                <input type="submit" value="Отправить файл" />
+            </form> 
         </div>
         <div class="fileloader-section__info">
             <img class="info-icon" src="">
