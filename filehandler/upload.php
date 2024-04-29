@@ -1,7 +1,6 @@
 загрузка на сервер...
 <?php
 
-
 require_once 'FileHandler.php';
 
 $fh = new FileHandler;
@@ -9,6 +8,7 @@ $fh->handle();
 
 
 die();
+
 session_start();
 require_once 'settings.php';
 
