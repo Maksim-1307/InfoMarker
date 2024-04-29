@@ -1,0 +1,32 @@
+<svg width="67" height="66" viewBox="0 0 66 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g width="67" height="66">
+        <path d="M18.5562 59.0132L23.4612 50.2988" stroke="black" stroke-opacity="0.58" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M43.4441 15.6463L48.5561 7.05166" stroke="black" stroke-opacity="0.09" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M7.55176 48.0563L16.1568 42.9619" stroke="black" stroke-opacity="0.66" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M50.7888 22.9434L59.5133 18.0563" stroke="black" stroke-opacity="0.17" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M3.5 33.0649L13.4994 32.9556" stroke="black" stroke-opacity="0.75" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M53.5007 32.9351L63.4999 33.0649" stroke="black" stroke-opacity="0.26" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M7.48682 18.0563L16.2012 22.9613" stroke="black" stroke-opacity="0.83" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M50.8538 42.9443L59.4484 48.0563" stroke="black" stroke-opacity="0.34" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M18.4438 7.05176L23.5382 15.6568" stroke="black" stroke-opacity="0.91" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M43.5566 50.2888L48.4438 59.0133" stroke="black" stroke-opacity="0.42" stroke-width="6"
+            stroke-linecap="round" />
+        <path d="M33.4351 3L33.5444 12.9994" stroke="black" stroke-width="6" stroke-linecap="round" />
+        <path d="M33.5649 53.0008L33.4351 63" stroke="black" stroke-opacity="0.5" stroke-width="6"
+            stroke-linecap="round" />
+        <animateTransform type='rotate' attributeName='transform' calcMode='discrete' dur='2'
+            values='30 33.5 33;60 33.5 33;90 33.5 33;120 33.5 33;150 33.5 33;180 33.5 33;210 33.5 33;240 33.5 33;270
+33.5 33;300 33.5 33;330 33.5 33;360 33.5 33'
+            repeatCount='indefinite'>
+        </animateTransform>
+    </g>
+</svg>

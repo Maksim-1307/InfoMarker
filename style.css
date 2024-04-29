@@ -1,0 +1,101 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: 'Roboto', sans-serif;
+}
+a{
+    text-decoration: none;
+}
+.logo{
+    font-size: 20px;
+    font-weight: 700;
+}
+body, html{
+    height: 100%;
+}
+.container{
+    margin: 0 auto;
+    max-width: 900px;
+}
+.header .container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header__left{
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.user-card{
+    display: flex;
+    align-items: center;
+}
+.user-card__avatar{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-size: cover;
+    display: block;
+}
+.warning{
+    background-color: rgb(255, 209, 209);
+    padding: 10px;
+}
+.message{
+    background-color: rgb(220, 220, 220);
+    padding: 10px;
+}
+.fileloader{
+    background-color: rgba(213, 213, 213, 0.399);
+    padding: 20px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.success{
+    background-color: rgb(202, 255, 202);
+}
+.error{
+    background-color: rgb(255, 214, 214);
+}
+
+.report{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.report__row{
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+.db-table{
+    background: #ececec;
+    display: flex ;
+    flex-direction: column;
+    border: 1px solid black;
+    margin-bottom: 30px;
+}
+.db-table__row{
+    padding: 10px;
+    background-color: white;
+    display: flex;
+    gap: 5%;
+}
+.db-table__el{
+    flex: 1;
+    max-width: 100%;
+    overflow: scroll;
+}
+.db-table__row:nth-child(odd) {
+    background-color: rgb(225, 225, 225);
+}
+.add-name-form{
+    background-color: #d6d6d6;
+    padding: 10px;
+}
