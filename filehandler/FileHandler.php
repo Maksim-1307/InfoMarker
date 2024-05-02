@@ -59,8 +59,8 @@ class FileHandler{
         if (!isset($_SESSION["requests"])) $_SESSION["requests"] = 0;
         $_SESSION["requests"] += 1;
         if ($_SESSION["requests"] > $REQUESTSLIMIT && !isset($_SESSION["user"])){
-            header('Location: ../pages/limit.php');
-            exit();
+            // header('Location: ../pages/limit.php');
+            // exit();
         }
 
 
@@ -82,11 +82,10 @@ class FileHandler{
         }
 
         if (!mkdir($rel_path)) {
-        echo $rel_path;
             die("Ошибка на сервере. Невозможно создать директрию (filehandler/upload.php)");
         }
 
-        $_SESSION["file"]["currentfile"] = $_FILES['new_document']['name'];
+        $_SESSION["file"]["currentfile"] = reset($_FILES)['name'];
 
 
 
@@ -141,12 +140,6 @@ class FileHandler{
         // }
 
 
-        // создание архива
-
-        $zip = new ZipArchive;
-        $zip->open($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]);
-
-
         // работа с сессей
 
         $fileFullName = $_SESSION["file"]["currentfile"];
@@ -157,16 +150,19 @@ class FileHandler{
 
         // работа с папкой
 
-        echo $extractDir;
 
         if (is_dir($extractDir)) {
-            echo "dir should be deleted";
-            //deleteDir($extractDir);
+            deleteDir($extractDir);
         }
         if (!mkdir($extractDir)) {
             die("Не удалось открыть файл");
         }
 
+
+                // создание архива
+
+        $zip = new ZipArchive;
+        $zip->open($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]);
 
         // непосредственно само извлечение
 
@@ -187,7 +183,7 @@ class FileHandler{
         // $document_coins = array();
 
         function get_names_from_db(){
-            require_once '../user/connect.php';
+            require_once '../../user/connect.php';
             $request = "SELECT `name` FROM register";
             $res = $connect->query($request);
             $register_list = array();
@@ -443,7 +439,7 @@ class FileHandler{
             $zip = new ZipArchive;
             $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-            echo $dir;
+            //echo $dir;
 
             $options = array('remove_path' => $dir);
             $zip->addGlob($dir . '/**/*.*', 0, $options);
