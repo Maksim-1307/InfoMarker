@@ -1,12 +1,21 @@
 <?php
 
-sleep(5);
+error_reporting(0);
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/filehandler/FileHandler.php';
 
 session_start();
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
+$fh = new FileHandler;
+$fh->handle();
+
 $response = [
-    'content' => "",
-    'found' => [],
+    'content' => '$fh->html',
+    'found' => '$fh->report',
     'download_link' => "https://info-marker.ru/user_cash_1/Тест 3.docx"
 ];
 
@@ -41,10 +50,6 @@ $response['found'] = [
         "color" => "#d3fcd5"
     ]
 ];
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header("Access-Control-Allow-Headers: X-Requested-With");
 
 echo json_encode($response);
 

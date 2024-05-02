@@ -5,7 +5,8 @@ require_once 'FileHandler.php';
 
 $fh = new FileHandler;
 $fh->handle();
-
+$response = [$fh->html, $fh->report];
+var_dump($response);
 
 die();
 

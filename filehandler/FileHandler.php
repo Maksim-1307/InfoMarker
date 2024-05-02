@@ -4,6 +4,7 @@ session_start();
 
 require_once 'settings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/docx2html/DocxToHtml.php';
 
 
 // REMAKE !!!
@@ -13,6 +14,15 @@ $document_coins = array();
 $register_list = array();
 
 class FileHandler{
+
+    public $html = "";
+
+    public function get_html(){
+        if (!$this->html) {
+            $this->handle();
+        }
+        return $this->html;
+    }
 
     public function handle(){
 
@@ -60,7 +70,7 @@ class FileHandler{
 
         unset($_SESSION["file"]);
 
-        $path_to_root = "../";
+        $path_to_root = "../../";
         $user_id = $_SESSION["user"]["id"];
         $_SESSION["file"]["cash_directory_relative_path"] = $path_to_root . $handler_settings["cash_directory_prefix"] . $user_id . '/';
 
@@ -83,7 +93,7 @@ class FileHandler{
 
         // перемещение файла 
 
-        if (move_uploaded_file($_FILES['new_document']['tmp_name'], $rel_path . $_FILES['new_document']['name'])) {
+        if (move_uploaded_file(reset($_FILES)['tmp_name'], $rel_path . reset($_FILES)['name'])) {
             //header('Location: unpack.php');
         } else {
             die("Ошибка на сервере. Не удалось загрузить файл (filehandler/upload.php)");
@@ -147,6 +157,8 @@ class FileHandler{
 
         // работа с папкой
 
+        echo $extractDir;
+
         if (is_dir($extractDir)) {
             echo "dir should be deleted";
             //deleteDir($extractDir);
@@ -159,7 +171,7 @@ class FileHandler{
         // непосредственно само извлечение
 
         if (!($zip->extractTo($extractDir))) {
-            die("Не удалось открыть файл");
+            die("Не удалось извлечь архив");
         } else {
             //header('Location: process.php');
         }
@@ -459,8 +471,6 @@ class FileHandler{
                 
                 if (count($coinsidences) > 0){
 
-                    echo "<br><br>register_list<br><br>";
-
                     foreach($coinsidences as $coins){
 
                         $i = 0;
@@ -536,8 +546,19 @@ class FileHandler{
         process_xml();
         make_docx();
         save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
-        header('Location: ../pages/file.php');
-        print_array($_SESSION);
+        // header('Location: ../pages/file.php');
+        // print_array($_SESSION);
+
+        foreach ($_SESSION["coinsidences"] as $name => $data) {
+            if (!$data){
+                unset($_SESSION["coinsidences"][$name]);
+            }
+        }
+
+        $wordPath = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"];
+        $handler = new Handler($wordPath);
+        $this->html = $handler->get_html();
+        $this->report = $_SESSION["coinsidences"];
 
 
     }
