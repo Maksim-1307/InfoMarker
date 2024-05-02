@@ -10,10 +10,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 $colors = array();
 $paragraph_coins = array();
 $document_coins = array();
+$register_list = array();
 
 class FileHandler{
 
     public function handle(){
+
+        global $register_list;
 
         // REMAKE!!!
         $handler_settings = [
@@ -451,9 +454,13 @@ class FileHandler{
                 saveCoincidences(extract_text($paragraph));
                 $coinsidences = $paragraph_coins;
                 split_paragraph($paragraph);
+
+                
                 
                 if (count($coinsidences) > 0){
-                    
+
+                    echo "<br><br>register_list<br><br>";
+
                     foreach($coinsidences as $coins){
 
                         $i = 0;
@@ -530,6 +537,7 @@ class FileHandler{
         make_docx();
         save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
         header('Location: ../pages/file.php');
+        print_array($_SESSION);
 
 
     }
