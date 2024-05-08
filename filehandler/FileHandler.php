@@ -6,16 +6,17 @@ require_once 'settings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/docx2html/DocxToHtml.php';
 
-
-// REMAKE !!!
-$colors = array();
-$paragraph_coins = array();
-$document_coins = array();
-$register_list = array();
+set_time_limit(86400);
 
 class FileHandler{
 
     public $html = "";
+    public $report = [];
+
+    public $colors = array();
+    public $paragraph_coins = array();
+    public $document_coins = array();
+    public $register_list = array();
 
     public function get_html(){
         if (!$this->html) {
@@ -26,51 +27,17 @@ class FileHandler{
 
     public function handle(){
 
-        global $register_list;
-
         // REMAKE!!!
         $handler_settings = [
             "cash_directory_prefix" => "user_cash_"
         ];
-
-        // обявление функций
-
-        // function deleteDir(string $dir): void
-        // {
-        //     $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-        //     $files = new RecursiveIteratorIterator(
-        //         $it,
-        //         RecursiveIteratorIterator::CHILD_FIRST
-        //     );
-        //     foreach ($files as $file) {
-        //         if ($file->isDir()) {
-        //             rmdir($file->getPathname());
-        //         } else {
-        //             unlink($file->getPathname());
-        //         }
-        //     }
-        //     rmdir($dir);
-        // }
-
-        // лимит запросов
-
-        $REQUESTSLIMIT = 10;
-
-        if (!isset($_SESSION["requests"])) $_SESSION["requests"] = 0;
-        $_SESSION["requests"] += 1;
-        if ($_SESSION["requests"] > $REQUESTSLIMIT && !isset($_SESSION["user"])){
-            // header('Location: ../pages/limit.php');
-            // exit();
-        }
-
-
 
 
         // создание папки кеша, запись в сессию
 
         unset($_SESSION["file"]);
 
-        $path_to_root = "../../";
+        $path_to_root = $_SERVER['DOCUMENT_ROOT'] . '/';
         $user_id = $_SESSION["user"]["id"];
         $_SESSION["file"]["cash_directory_relative_path"] = $path_to_root . $handler_settings["cash_directory_prefix"] . $user_id . '/';
 
@@ -99,47 +66,6 @@ class FileHandler{
         }
 
 
-        // обявление функций
-
-        // function deleteDir(string $dir): void
-        // {
-        //     $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-        //     $files = new RecursiveIteratorIterator(
-        //         $it,
-        //         RecursiveIteratorIterator::CHILD_FIRST
-        //     );
-        //     foreach ($files as $file) {
-        //         if ($file->isDir()) {
-        //             rmdir($file->getPathname());
-        //         } else {
-        //             unlink($file->getPathname());
-        //         }
-        //     }
-        //     rmdir($dir);
-        // }
-
-        // function unzip($from, $to){
-        //     $zip = new ZipArchive;
-        //     if (!($zip->open($path))){
-        //         return false;
-        //     }
-        //     $aFileName = explode('/', $to);
-        //     $aFileName = $aFileName[end($aFileName)];
-        //     if (is_dir($to)) {
-        //         echo "dir should be deleted";
-        //         //deleteDir($to);
-        //     }
-        //     if (!mkdir($to)) {
-        //         die("Не удалось открыть файл");
-        //     }
-        //     if (!($zip->extractTo($to))) {
-        //         die("Не удалось открыть файл");
-        //     } else {
-        //         //header('Location: process.php');
-        //     }
-        // }
-
-
         // работа с сессей
 
         $fileFullName = $_SESSION["file"]["currentfile"];
@@ -150,7 +76,6 @@ class FileHandler{
 
         // работа с папкой
 
-
         if (is_dir($extractDir)) {
             deleteDir($extractDir);
         }
@@ -159,7 +84,7 @@ class FileHandler{
         }
 
 
-                // создание архива
+        // создание архива
 
         $zip = new ZipArchive;
         $zip->open($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]);
@@ -175,31 +100,68 @@ class FileHandler{
 
 
 
+        $this->register_list = $this->get_names_from_db();
 
-        set_time_limit(86400);
+        //unset($_SESSION["coinsidences"]);
+        $_SESSION["coinsidences"] = [];
 
-        // $colors = array();
-        // $paragraph_coins = array();
-        // $document_coins = array();
+        $this->process_xml();
+        $this->make_docx();
+        save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
+        // header('Location: ../pages/file.php');
+        // print_array($_SESSION);
 
-        function get_names_from_db(){
-            require_once '../../user/connect.php';
-            $request = "SELECT `name` FROM register";
-            $res = $connect->query($request);
-            $register_list = array();
-            if ($res->num_rows > 0) {
-                while ($row = $res->fetch_assoc()) {
-                    array_push($register_list, $row['name']);
-                }
-            } else {
-            //echo "rows: " . $res->num_rows > 0;
+        foreach ($_SESSION["coinsidences"] as $name => $data) {
+            if (!$data){
+                unset($_SESSION["coinsidences"][$name]);
             }
-            return $register_list;
         }
 
-        $register_list = get_names_from_db();
+        $wordPath = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"];
 
-        function nice_color($color)
+        $handler = new Handler($wordPath);
+        $this->html = $handler->get_html();
+        $this->report = $_SESSION["coinsidences"];
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function get_names_from_db(){
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/user/connect.php';
+        $request = "SELECT `name` FROM register";
+        $res = $connect->query($request);
+        $this->register_list = array();
+        if ($res->num_rows > 0) {
+            while ($row = $res->fetch_assoc()) {
+                array_push($this->register_list, $row['name']);
+            }
+        } else {
+        //echo "rows: " . $res->num_rows > 0;
+        }
+        return $this->register_list;
+    }
+
+
+
+
+
+    public function nice_color($color)
         {
             $mindeviation = 20;
             $average = ($color[0] + $color[1] + $color[2]) / 3;
@@ -216,30 +178,29 @@ class FileHandler{
             return true;
         }
 
-        function genColor()
+    public function genColor()
         {
-            global $colors;
             // from 0 to 32 for each channel
             $min = 0;
             $max = 255;
             $factor = 8;
             $color = array(mt_rand($min, $max), mt_rand($min, $max), mt_rand($min, $max));
-            while (!nice_color($color)) {
+            while (!$this->nice_color($color)) {
                 $color = array(mt_rand($min, $max), mt_rand($min, $max), mt_rand($min, $max));
             }
             $color = sprintf("%02x%02x%02x", $color[0], $color[1], $color[2]);
-            while(in_array($color, $colors)){
-                $color = genColor();
+            while(in_array($color, $this->colors)){
+                $color = $this->genColor();
             }
             return $color;
         }
 
-        function setColor($word){
+    public function setColor($word){
             if (isset($_SESSION["coinsidences"][$word])){
                 if (isset($_SESSION["coinsidences"][$word]["color"])){
                     return $_SESSION["coinsidences"][$word]["color"];
                 } else {
-                    $color = genColor();
+                    $color = $this->genColor();
                     $_SESSION["coinsidences"][$word]["color"] = $color;
                     return $color;
                 }
@@ -248,7 +209,7 @@ class FileHandler{
             }
         }
 
-        function is_punctuation($t){
+    public function is_punctuation($t){
             $text = trim($t, " !?.,;:");
             if (strlen($text) == 0){
                 return 1;
@@ -257,26 +218,23 @@ class FileHandler{
             }
         }
 
-        function saveCoincidences($text){
-            global $paragraph_coins;
-            global $document_coins;
-            global $register_list;
+    public function saveCoincidences($text){
             $coinsidences = [];
 
-            $forbidden_words = $register_list;
-            array_push($document_coins, $paragraph_coins);
-            $paragraph_coins = [];
+            $forbidden_words = $this->register_list;
+            array_push($this->document_coins, $this->paragraph_coins);
+            $this->paragraph_coins = [];
             foreach ($forbidden_words as $word){
-                $indices = coincidencesByName($text, $word);
+                $indices = $this->coincidencesByName($text, $word);
                 if (count($indices)){
-                    $color = setColor($word);
-                    $paragraph_coins[$word] = array($indices, $color);
+                    $color = $this->setColor($word);
+                    $this->paragraph_coins[$word] = array($indices, $color);
                 }
             }
             return $coinsidences;
         }
 
-        function coincidence($str1, $str2){
+    public function coincidence($str1, $str2){
             $str1 = make_lowercase($str1);
             $str2 = make_lowercase($str2);
             $len = (float)max(strlen($str1), strlen($str2));
@@ -288,277 +246,244 @@ class FileHandler{
             }
         }
 
-        function coincidencesByName($text, $word)
-        {
-            $MINCOINS = 0.75;
+    public function coincidencesByName($text, $word) {
+        $MINCOINS = 0.75;
 
-            $result = [];
-            $textArray = explode(' ', $text);
-            $wordArray = explode(' ', $word);
-            $textLen = count($textArray);
-            $wordLen = count($wordArray);
+        $result = [];
+        $textArray = explode(' ', $text);
+        $wordArray = explode(' ', $word);
+        $textLen = count($textArray);
+        $wordLen = count($wordArray);
 
-            if($wordLen > $textLen){
-                return [];
+        if($wordLen > $textLen){
+            return [];
+        }
+
+        if (!isset($_SESSION["coinsidences"][$word])) {
+            $_SESSION["coinsidences"][$word] = [];
+            //echo "considences set to empty array";
+        }
+
+        $lastCoins = 0;
+        for ($i = 0; ($i + $wordLen) <= $textLen; $i++){
+            $substr = "";
+            for ($j = 0; $j < $wordLen; $j++){
+                if ($substr){
+                    $substr = $substr . " " . $textArray[$i + $j];
+                } else {
+                    $substr = $substr . $textArray[$i + $j];
+                }
             }
-
-            if (!isset($_SESSION["coinsidences"][$word])) {
-                $_SESSION["coinsidences"][$word] = [];
-                //echo "considences set to empty array";
+            $coins = $this->coincidence($substr, $word);
+            if ($coins >= $lastCoins){
+                if ($coins >= $MINCOINS){
+                    $lastCoins = $coins;
+                }
+            } else {
+                for($j = $i-1; $j+1 < $i + $wordLen; $j++){
+                    array_push($result, $j);
+                }
+                $lastCoins = 0;
+                $i = $i + $wordLen - 1;
+                if (!isset($_SESSION["coinsidences"][$word]["count"])) {
+                    $_SESSION["coinsidences"][$word]["count"] = 1;
+                } else  {
+                    $_SESSION["coinsidences"][$word]["count"] += 1;
+                }
             }
+            //for the last iteration
+            if (($i + $wordLen) == $textLen && $lastCoins >= $MINCOINS) {
+                for ($j = $i - 1; $j + 1 < $i + $wordLen; $j++) {
+                    array_push($result, $j+1);
+                }
+                if (!isset($_SESSION["coinsidences"][$word]["count"])) {
+                    $_SESSION["coinsidences"][$word]["count"] = 1;
+                } else  {
+                    $_SESSION["coinsidences"][$word]["count"] += 1;
+                }
+            }
+        }
 
-            $lastCoins = 0;
-            for ($i = 0; ($i + $wordLen) <= $textLen; $i++){
-                $substr = "";
-                for ($j = 0; $j < $wordLen; $j++){
-                    if ($substr){
-                        $substr = $substr . " " . $textArray[$i + $j];
+        return $result;
+    }
+
+    public function split_paragraph($paragraph){
+        $segments_array = $paragraph->r;
+        $segments_count = count($segments_array);
+
+        $no_space_characters = array('.', ',', '!', '!', ':', ';');
+
+        if (!isset($segments_array[0]->t)){
+            return null;
+        }
+        $next_segment_text = (string)($segments_array[0]->t);
+        $segment_text = "";
+
+        for ($i = 0; $i < $segments_count; $i++) {
+            $segment_text = $next_segment_text;
+            if (isset($segments_array[1])){
+                $next_segment_text = (string)($segments_array[1]->t);
+            } else {
+                unset($next_segment_text);
+            }
+            $segment_words = explode(" ", $segment_text);
+            $styles_tag = $segments_array[0]->rPr;
+            $word_object;
+            for ($w = 0; $w < count($segment_words); $w++) {
+                $word = $segment_words[$w];
+                if ($word) {
+                    if ($w+1 < count($segment_words)){
+                        if ($this->is_punctuation($segment_words[$w + 1])){
+                            $next_word = $segment_words[$w+1];
+                            $word = $word . $next_word;
+                            unset($segment_words[$w+1]);
+                        }
                     } else {
-                        $substr = $substr . $textArray[$i + $j];
-                    }
-                }
-                $coins = coincidence($substr, $word);
-                if ($coins >= $lastCoins){
-                    if ($coins >= $MINCOINS){
-                        $lastCoins = $coins;
-                    }
-                } else {
-                    for($j = $i-1; $j+1 < $i + $wordLen; $j++){
-                        array_push($result, $j);
-                    }
-                    $lastCoins = 0;
-                    $i = $i + $wordLen - 1;
-                    if (!isset($_SESSION["coinsidences"][$word]["count"])) {
-                        $_SESSION["coinsidences"][$word]["count"] = 1;
-                    } else  {
-                        $_SESSION["coinsidences"][$word]["count"] += 1;
-                    }
-                }
-                //for the last iteration
-                if (($i + $wordLen) == $textLen && $lastCoins >= $MINCOINS) {
-                    for ($j = $i - 1; $j + 1 < $i + $wordLen; $j++) {
-                        array_push($result, $j+1);
-                    }
-                    if (!isset($_SESSION["coinsidences"][$word]["count"])) {
-                        $_SESSION["coinsidences"][$word]["count"] = 1;
-                    } else  {
-                        $_SESSION["coinsidences"][$word]["count"] += 1;
-                    }
-                }
-            }
-
-            return $result;
-        }
-
-        function split_paragraph($paragraph){
-            $segments_array = $paragraph->r;
-            $segments_count = count($segments_array);
-
-            $no_space_characters = array('.', ',', '!', '!', ':', ';');
-
-            if (!isset($segments_array[0]->t)){
-                return null;
-            }
-            $next_segment_text = (string)($segments_array[0]->t);
-            $segment_text = "";
-
-            for ($i = 0; $i < $segments_count; $i++) {
-                $segment_text = $next_segment_text;
-                if (isset($segments_array[1])){
-                    $next_segment_text = (string)($segments_array[1]->t);
-                } else {
-                    unset($next_segment_text);
-                }
-                $segment_words = explode(" ", $segment_text);
-                $styles_tag = $segments_array[0]->rPr;
-                $word_object;
-                for ($w = 0; $w < count($segment_words); $w++) {
-                    $word = $segment_words[$w];
-                    if ($word) {
-                        // if (($w + 1) < count($segment_words) && is_punctuation($segment_words[$w + 1])){
-                        //     $next_word = $segment_words[$w+1];
-                        //     $word = $word . $next_word;
-                        //     unset($segment_words[$w+1]);
-                        // }
-                        if ($w+1 < count($segment_words)){
-                            if (is_punctuation($segment_words[$w + 1])){
-                                $next_word = $segment_words[$w+1];
+                        if (isset($next_segment_text)){
+                            $next_word = explode(" ", $next_segment_text)[0];
+                            if ($this->is_punctuation($next_word)) {
+                                
                                 $word = $word . $next_word;
-                                unset($segment_words[$w+1]);
-                            }
-                        } else {
-                            if (isset($next_segment_text)){
-                                $next_word = explode(" ", $next_segment_text)[0];
-                                if (is_punctuation($next_word)) {
-                                    
-                                    $word = $word . $next_word;
-                                    $next_words = explode(" ", $next_segment_text);
-                                    unset($next_words[0]);
-                                    $next_segment_text = implode(" ", $next_words);
-                                }
+                                $next_words = explode(" ", $next_segment_text);
+                                unset($next_words[0]);
+                                $next_segment_text = implode(" ", $next_words);
                             }
                         }
-                        $word_object = $paragraph->addChild("r");
-                        //$word_object->addAttribute("w:rsidR", "00711293");
-                        if ($styles_tag){
-                            sxml_append($word_object, $styles_tag);
-                        } else {
-                            $word_object->addChild("w:rPr", "");
-                        }
-                    
-                        $text = $word_object->addChild("t", $word . " ");
-                        $text->addAttribute("xml:space", "preserve", "xml");
                     }
-                }
-                unset($segments_array[0]);
-            }
-            //die("testtest");
-        }
-
-        function extract_text(SimpleXMLElement $p){
-            $text = "";
-            foreach ($p->r as $r){
-                $text = $text . (string)($r->t);
-            }
-            return $text;
-        }
-
-        function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
-        {
-            if (count($from)){
-                $toDom = dom_import_simplexml($to);
-                $fromDom = dom_import_simplexml($from);
-                $toDom->appendChild($toDom->ownerDocument->importNode($fromDom->cloneNode(true), true));
-            }
-        }
-
-        function make_docx()
-        {
-            //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
-            $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
-            $zip = new ZipArchive;
-            $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-            //echo $dir;
-
-            $options = array('remove_path' => $dir);
-            $zip->addGlob($dir . '/**/*.*', 0, $options);
-            $zip->addGlob($dir . '/*.*', 0, $options);
-            $zip->addGlob($dir . '/_rels/.rels', 0, $options);
-
-            $zip->close();
-        }
-
-        function process_xml(){
-
-            global $paragraph_coins;
-
-            $path_to_document = "word/document.xml";
-            $XMLfile_path = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . '/' . $path_to_document;
-            $xml_document = simplexml_load_file($XMLfile_path, null, 0, 'w', true);
-            $body = $xml_document->body;
-
-            foreach($body->p as $paragraph){
-                saveCoincidences(extract_text($paragraph));
-                $coinsidences = $paragraph_coins;
-                split_paragraph($paragraph);
-
+                    $word_object = $paragraph->addChild("r");
+                    //$word_object->addAttribute("w:rsidR", "00711293");
+                    if ($styles_tag){
+                        $this->sxml_append($word_object, $styles_tag);
+                    } else {
+                        $word_object->addChild("w:rPr", "");
+                    }
                 
-                
-                if (count($coinsidences) > 0){
-
-                    foreach($coinsidences as $coins){
-
-                        $i = 0;
-                        foreach ($paragraph->r as $segment) {
-                            if (in_array($i, $coins[0])) {
-                                unset($segment->rPr->highlight);
-                                //$segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
-                                $glow = $segment->rPr->addChild("w14:glow", null, "http://schemas.microsoft.com/office/word/2010/wordml");
-                                $glow->addAttribute("w14:rad", "250000", "http://schemas.microsoft.com/office/word/2010/wordml");
-                                $glow->addChild("w14:srgbClr w14:val=\"". $coins[1] ."\"");
-                                /*
-                                    <w14:glow w14:rad="254000">
-                                        <w14:srgbClr w14:val="54FFC6" />
-                                    </w14:glow>
-                                */
-                            }
-                            $i += 1;
-                        }
-
-                    }
-                }
-            } 
-
-            return $xml_document->asXML($XMLfile_path);
-
-        }
-
-        function process_html(){
-
-            global $document_coins;
-
-            $dom = new DOMDocument();
-            $path = $_SESSION["file"]["cash_directory_relative_path"] . "content.html";
-            $html = file_get_contents($path);
-            if (!$html) return 0;
-            $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
-
-            $elements = $dom->getElementsByTagName("p");
-            for ($i = 0; $i < count($elements); $i++){
-                $paragraph = $elements[$i];
-                $words = $paragraph->getElementsByTagName("span");
-
-                if ($i+1 < count($document_coins)){
-                    $coinsidences = $document_coins[$i+1];
-                } else {
-                    $coinsidences = null;
-                }
-
-                if ($coinsidences){
-                    foreach ($coinsidences as $coin) {
-                        $j = 0;
-                        foreach($words as $word){
-                            if (in_array($j, $coin[0])){
-                                $styles = $word->getAttribute("style");
-                                $word->setAttribute("style", $styles . "background-color: #". $coin[1] .";");
-                            }
-                            $j++;
-                        }
-                    }
+                    $text = $word_object->addChild("t", $word . " ");
+                    $text->addAttribute("xml:space", "preserve", "xml");
                 }
             }
-            $html = $dom->saveHTML();
-            //file_put_contents($path, $html);
-            $file = fopen($path, "w");
-            fwrite($file, $html);
-            fclose($file);
-            //echo $dom->saveHTML();
+            unset($segments_array[0]);
         }
+        //die("testtest");
+    }
 
-        //unset($_SESSION["coinsidences"]);
-        $_SESSION["coinsidences"] = [];
+    public function extract_text(SimpleXMLElement $p){
+        $text = "";
+        foreach ($p->r as $r){
+            $text = $text . (string)($r->t);
+        }
+        return $text;
+    }
 
-        process_xml();
-        make_docx();
-        save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
-        // header('Location: ../pages/file.php');
-        // print_array($_SESSION);
+    public function sxml_append(SimpleXMLElement $to, SimpleXMLElement $from)
+    {
+        if (count($from)){
+            $toDom = dom_import_simplexml($to);
+            $fromDom = dom_import_simplexml($from);
+            $toDom->appendChild($toDom->ownerDocument->importNode($fromDom->cloneNode(true), true));
+        }
+    }
 
-        foreach ($_SESSION["coinsidences"] as $name => $data) {
-            if (!$data){
-                unset($_SESSION["coinsidences"][$name]);
+    public function make_docx()
+    {
+        //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
+        $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
+        $zip = new ZipArchive;
+        $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        //echo $dir;
+
+        $options = array('remove_path' => $dir);
+        $zip->addGlob($dir . '/**/*.*', 0, $options);
+        $zip->addGlob($dir . '/*.*', 0, $options);
+        $zip->addGlob($dir . '/_rels/.rels', 0, $options);
+
+        $zip->close();
+    }
+
+    public function process_xml(){
+
+        $path_to_document = "word/document.xml";
+        $XMLfile_path = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . '/' . $path_to_document;
+        $xml_document = simplexml_load_file($XMLfile_path, null, 0, 'w', true);
+        $body = $xml_document->body;
+
+        foreach($body->p as $paragraph){
+            $this->saveCoincidences($this->extract_text($paragraph));
+            $coinsidences = $this->paragraph_coins;
+            $this->split_paragraph($paragraph);
+
+            
+            
+            if (count($coinsidences) > 0){
+
+                foreach($coinsidences as $coins){
+
+                    $i = 0;
+                    foreach ($paragraph->r as $segment) {
+                        if (in_array($i, $coins[0])) {
+                            unset($segment->rPr->highlight);
+                            //$segment->rPr->addChild("w:highlight w:val=\"" . $coins[1] . "\"");
+                            $glow = $segment->rPr->addChild("w14:glow", null, "http://schemas.microsoft.com/office/word/2010/wordml");
+                            $glow->addAttribute("w14:rad", "250000", "http://schemas.microsoft.com/office/word/2010/wordml");
+                            $glow->addChild("w14:srgbClr w14:val=\"". $coins[1] ."\"");
+                            /*
+                                <w14:glow w14:rad="254000">
+                                    <w14:srgbClr w14:val="54FFC6" />
+                                </w14:glow>
+                            */
+                        }
+                        $i += 1;
+                    }
+
+                }
             }
-        }
+        } 
 
-        $wordPath = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"];
-        $handler = new Handler($wordPath);
-        $this->html = $handler->get_html();
-        $this->report = $_SESSION["coinsidences"];
-
+        return $xml_document->asXML($XMLfile_path);
 
     }
 
+    // public function process_html(){
+
+    //     $dom = new DOMDocument();
+    //     $path = $_SESSION["file"]["cash_directory_relative_path"] . "content.html";
+    //     $html = file_get_contents($path);
+    //     if (!$html) return 0;
+    //     $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+
+    //     $elements = $dom->getElementsByTagName("p");
+    //     for ($i = 0; $i < count($elements); $i++){
+    //         $paragraph = $elements[$i];
+    //         $words = $paragraph->getElementsByTagName("span");
+
+    //         if ($i+1 < count($this->document_coins)){
+    //             $coinsidences = $this->document_coins[$i+1];
+    //         } else {
+    //             $coinsidences = null;
+    //         }
+
+    //         if ($coinsidences){
+    //             foreach ($coinsidences as $coin) {
+    //                 $j = 0;
+    //                 foreach($words as $word){
+    //                     if (in_array($j, $coin[0])){
+    //                         $styles = $word->getAttribute("style");
+    //                         $word->setAttribute("style", $styles . "background-color: #". $coin[1] .";");
+    //                     }
+    //                     $j++;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     $html = $dom->saveHTML();
+    //     //file_put_contents($path, $html);
+    //     $file = fopen($path, "w");
+    //     fwrite($file, $html);
+    //     fclose($file);
+    //     //echo $dom->saveHTML();
+    // }
+        
 }
 
 ?>

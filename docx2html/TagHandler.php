@@ -169,7 +169,7 @@ class TagHandler{
     function property_highlight($propElement)
     {
         $colorVal = $propElement->attributes[0]->nodeValue;
-        return "background-color: " . $colorVal . ";";
+        return "background-color: #" . $colorVal . ";";
     }
 
     function property_b($propElement){

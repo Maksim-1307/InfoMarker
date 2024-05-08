@@ -13,11 +13,13 @@ session_start();
 $fh = new FileHandler;
 $fh->handle();
 
+
 $response = [
-    'content' => $fh->html,
+    'content' => $fh->get_html(),
     'found' => $fh->report,
     'download_link' => "https://info-marker.ru/user_cash_1/Тест 3.docx"
 ];
+
 
 // foreach ($_FILES as $file) {
 //     $response['content'] .= ("file name is: " . $file['name'] . "<br>");
