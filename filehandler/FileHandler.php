@@ -61,31 +61,11 @@ class FileHandler{
 
         $path_to_root = $_SERVER['DOCUMENT_ROOT'] . '/';
         $user_id = $_SESSION["user"]["id"];
-        $this->cashDir = $path_to_root . $this->handler_settings["cash_directory_prefix"] . $user_id . '/';
+        //$this->cashDir = $path_to_root . $this->handler_settings["cash_directory_prefix"] . $user_id . '/';
 
         $rel_path = $this->cashDir;
 
-        // if (is_dir($rel_path)) {
-        //     //echo "dir should be deleted line 56" . $rel_path;
-        //     deleteDir($rel_path);
-        // }
-
-        // if (!mkdir($rel_path)) {
-        //     die("Ошибка на сервере. Невозможно создать директрию (filehandler/upload.php)");
-        // }
-
         $_SESSION["file"]["currentfile"] = reset($_FILES)['name'];
-
-
-
-
-        // // перемещение файла 
-
-        // if (move_uploaded_file(reset($_FILES)['tmp_name'], $rel_path . reset($_FILES)['name'])) {
-        //     //header('Location: unpack.php');
-        // } else {
-        //     die("Ошибка на сервере. Не удалось загрузить файл (filehandler/upload.php)");
-        // }
 
 
         $this->uploadedFilePath = $this->DocumentUploader->upload($rel_path);
@@ -95,19 +75,6 @@ class FileHandler{
         if (!$this->unpackDir) throw new Exception("Cannot unzip the file");
 
 
-        // работа с папкой
-
-        // if (is_dir($extractDir)) {
-        //     deleteDir($extractDir);
-        // }
-        // if (!mkdir($extractDir)) {
-        //     die("Не удалось открыть файл");
-        // }
-
-
-        // создание архива
-
-
         // работа с сессей
 
         $fileFullName = $_SESSION["file"]["currentfile"];
@@ -115,27 +82,13 @@ class FileHandler{
         $this->unpackDir = $aFileName;
         $extractDir = $this->cashDir . $aFileName;
 
-        // непосредственно само извлечение
-
-        // if (!($zip->extractTo($extractDir))) {
-        //     die("Не удалось извлечь архив");
-        // } else {
-        //     //header('Location: process.php');
-        // }
-
-
-
 
         $this->register_list = $this->get_names_from_db();
 
-        //unset($_SESSION["coinsidences"]);
         $_SESSION["coinsidences"] = [];
 
         $this->process_xml();
         $this->make_docx();
-        // save_html($this->cashDir . $this->unpackDir . ".docx", $this->cashDir . "content.html");
-        // header('Location: ../pages/file.php');
-        // print_array($_SESSION);
 
         foreach ($_SESSION["coinsidences"] as $name => $data) {
             if (!$data){
@@ -178,7 +131,6 @@ class FileHandler{
                 array_push($this->register_list, $row['name']);
             }
         } else {
-        //echo "rows: " . $res->num_rows > 0;
         }
         return $this->register_list;
     }
@@ -287,7 +239,6 @@ class FileHandler{
 
         if (!isset($_SESSION["coinsidences"][$word])) {
             $_SESSION["coinsidences"][$word] = [];
-            //echo "considences set to empty array";
         }
 
         $lastCoins = 0;
@@ -469,46 +420,6 @@ class FileHandler{
         return $xml_document->asXML($XMLfile_path);
 
     }
-
-    // public function process_html(){
-
-    //     $dom = new DOMDocument();
-    //     $path = $this->cashDir . "content.html";
-    //     $html = file_get_contents($path);
-    //     if (!$html) return 0;
-    //     $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
-
-    //     $elements = $dom->getElementsByTagName("p");
-    //     for ($i = 0; $i < count($elements); $i++){
-    //         $paragraph = $elements[$i];
-    //         $words = $paragraph->getElementsByTagName("span");
-
-    //         if ($i+1 < count($this->document_coins)){
-    //             $coinsidences = $this->document_coins[$i+1];
-    //         } else {
-    //             $coinsidences = null;
-    //         }
-
-    //         if ($coinsidences){
-    //             foreach ($coinsidences as $coin) {
-    //                 $j = 0;
-    //                 foreach($words as $word){
-    //                     if (in_array($j, $coin[0])){
-    //                         $styles = $word->getAttribute("style");
-    //                         $word->setAttribute("style", $styles . "background-color: #". $coin[1] .";");
-    //                     }
-    //                     $j++;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     $html = $dom->saveHTML();
-    //     //file_put_contents($path, $html);
-    //     $file = fopen($path, "w");
-    //     fwrite($file, $html);
-    //     fclose($file);
-    //     //echo $dom->saveHTML();
-    // }
         
 }
 

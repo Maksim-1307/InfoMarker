@@ -3,7 +3,14 @@
 class User{
     public function get_cash_path(){
         // Remake
-        return $_SERVER['DOCUMENT_ROOT'] . "/user_cash_" . $_SESSION["user"]["id"];
+        $path = $_SERVER['DOCUMENT_ROOT'] . "/user_cash_";
+        if ($_SESSION["user"]["id"] == ""){
+            $path = $path . time() . rand(0,9);
+        } else {
+            die("use is set");
+            $path .= $_SESSION["user"]["id"];
+        }
+        return $path . "/";
     }
 }
 
