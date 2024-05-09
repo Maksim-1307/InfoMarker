@@ -1,6 +1,6 @@
 <?php 
 
-require_once '../functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 
 class Uploader{
 
@@ -22,15 +22,18 @@ class Uploader{
     public function check_file($file){
         $ext = end((explode(".", $file["name"])));
         if (!in_array($ext, $this->rules["allowed_extensios"])){
-            throw new Exception('Unsupported file extension. Change Uploader->$rules');
+            throw new Exception('Unsupported file extension. Change Uploader->$rules. Allowed extentions: ' . implode(", ", $this->rules["allowed_extensios"]) . ", your file extention is " . $file["name"] . ".");
             return false;
         }
         return true;
     }
     
-    public function save_file($name, $savePath, $errCallback = null){
+    public function upload($savePath, $errCallback = null){
         try {
-            $file = $_FILES[$name];
+
+            $file = reset($_FILES);
+            if (!$file) throw new Exception("\$_FILES is empty");
+            
             $file["name"] = transliterate($file["name"]);
             if (!$file) throw new Exception("\$_FILES is empty");
             if (!$this->check_file($file)) return false;

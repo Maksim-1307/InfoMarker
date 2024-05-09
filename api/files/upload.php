@@ -7,10 +7,12 @@ header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/filehandler/FileHandler.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/user/User.php';
 
 session_start();
 
-$fh = new FileHandler;
+$fh = new FileHandler();
+$_SESSION["pFileHandler"] = &$fh;
 $fh->handle();
 
 

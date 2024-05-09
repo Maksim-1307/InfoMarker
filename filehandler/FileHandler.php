@@ -5,18 +5,46 @@ session_start();
 require_once 'settings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/docx2html/DocxToHtml.php';
+require_once 'Uploader.php';
+require_once 'ZipHandler.php';
 
 set_time_limit(86400);
 
 class FileHandler{
 
+    // results
     public $html = "";
     public $report = [];
 
+    // handlers
+    public $DocumentUploader;
+    public $ZipHandler;
+
+    // varibles
+    private $uploadedFilePath;
+    private $cashDir;
+    private $unpackDir;
     public $colors = array();
     public $paragraph_coins = array();
     public $document_coins = array();
     public $register_list = array();
+
+    private $handler_settings = [
+        "cash_directory_prefix" => "user_cash_"
+    ];
+
+    public function __construct(){
+
+        $this->DocumentUploader = new Uploader();
+        $this->DocumentUploader->set_rule("allowed_extensios", ["doc", "docx", "docm"]);
+        $this->DocumentUploader->set_rule("allow_rewrite", true);
+        $this->DocumentUploader->set_rule("allow_create_dir", true);
+
+        $this->ZipHandler = new ZipHandler();
+
+        $this->cashDir = $_SESSION["pUser"]->get_cash_path();
+
+    }
 
     public function get_html(){
         if (!$this->html) {
@@ -27,75 +55,73 @@ class FileHandler{
 
     public function handle(){
 
-        // REMAKE!!!
-        $handler_settings = [
-            "cash_directory_prefix" => "user_cash_"
-        ];
-
-
         // создание папки кеша, запись в сессию
 
         unset($_SESSION["file"]);
 
         $path_to_root = $_SERVER['DOCUMENT_ROOT'] . '/';
         $user_id = $_SESSION["user"]["id"];
-        $_SESSION["file"]["cash_directory_relative_path"] = $path_to_root . $handler_settings["cash_directory_prefix"] . $user_id . '/';
+        $this->cashDir = $path_to_root . $this->handler_settings["cash_directory_prefix"] . $user_id . '/';
 
-        $rel_path = $_SESSION["file"]["cash_directory_relative_path"];
+        $rel_path = $this->cashDir;
 
-        if (is_dir($rel_path)) {
-            //echo "dir should be deleted line 56" . $rel_path;
-            deleteDir($rel_path);
-        }
+        // if (is_dir($rel_path)) {
+        //     //echo "dir should be deleted line 56" . $rel_path;
+        //     deleteDir($rel_path);
+        // }
 
-        if (!mkdir($rel_path)) {
-            die("Ошибка на сервере. Невозможно создать директрию (filehandler/upload.php)");
-        }
+        // if (!mkdir($rel_path)) {
+        //     die("Ошибка на сервере. Невозможно создать директрию (filehandler/upload.php)");
+        // }
 
         $_SESSION["file"]["currentfile"] = reset($_FILES)['name'];
 
 
 
 
-        // перемещение файла 
+        // // перемещение файла 
 
-        if (move_uploaded_file(reset($_FILES)['tmp_name'], $rel_path . reset($_FILES)['name'])) {
-            //header('Location: unpack.php');
-        } else {
-            die("Ошибка на сервере. Не удалось загрузить файл (filehandler/upload.php)");
-        }
+        // if (move_uploaded_file(reset($_FILES)['tmp_name'], $rel_path . reset($_FILES)['name'])) {
+        //     //header('Location: unpack.php');
+        // } else {
+        //     die("Ошибка на сервере. Не удалось загрузить файл (filehandler/upload.php)");
+        // }
+
+
+        $this->uploadedFilePath = $this->DocumentUploader->upload($rel_path);
+        if (!$this->uploadedFilePath) throw new Exception("Cannot upload the file");
+
+        $this->unpackDir = $this->ZipHandler->unzip($this->uploadedFilePath, $this->cashDir);
+        if (!$this->unpackDir) throw new Exception("Cannot unzip the file");
+
+
+        // работа с папкой
+
+        // if (is_dir($extractDir)) {
+        //     deleteDir($extractDir);
+        // }
+        // if (!mkdir($extractDir)) {
+        //     die("Не удалось открыть файл");
+        // }
+
+
+        // создание архива
 
 
         // работа с сессей
 
         $fileFullName = $_SESSION["file"]["currentfile"];
-        $aFileName = explode('.', $fileFullName)[0];
-        $_SESSION["file"]["unzip_folder_name"] = $aFileName;
-        $extractDir = $_SESSION["file"]["cash_directory_relative_path"] . $aFileName;
-
-
-        // работа с папкой
-
-        if (is_dir($extractDir)) {
-            deleteDir($extractDir);
-        }
-        if (!mkdir($extractDir)) {
-            die("Не удалось открыть файл");
-        }
-
-
-        // создание архива
-
-        $zip = new ZipArchive;
-        $zip->open($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]);
+        $aFileName = explode('.', $this->uploadedFilePath)[0];
+        $this->unpackDir = $aFileName;
+        $extractDir = $this->cashDir . $aFileName;
 
         // непосредственно само извлечение
 
-        if (!($zip->extractTo($extractDir))) {
-            die("Не удалось извлечь архив");
-        } else {
-            //header('Location: process.php');
-        }
+        // if (!($zip->extractTo($extractDir))) {
+        //     die("Не удалось извлечь архив");
+        // } else {
+        //     //header('Location: process.php');
+        // }
 
 
 
@@ -107,7 +133,7 @@ class FileHandler{
 
         $this->process_xml();
         $this->make_docx();
-        save_html($_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . ".docx", $_SESSION["file"]["cash_directory_relative_path"] . "content.html");
+        // save_html($this->cashDir . $this->unpackDir . ".docx", $this->cashDir . "content.html");
         // header('Location: ../pages/file.php');
         // print_array($_SESSION);
 
@@ -117,7 +143,7 @@ class FileHandler{
             }
         }
 
-        $wordPath = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"];
+        $wordPath = $this->uploadedFilePath;
 
         $handler = new Handler($wordPath);
         $this->html = $handler->get_html();
@@ -386,8 +412,8 @@ class FileHandler{
 
     public function make_docx()
     {
-        //$_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["currentfile"]
-        $dir = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"];
+        //$this->cashDir . $_SESSION["file"]["currentfile"]
+        $dir = $this->cashDir . $this->unpackDir;
         $zip = new ZipArchive;
         $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
@@ -404,7 +430,7 @@ class FileHandler{
     public function process_xml(){
 
         $path_to_document = "word/document.xml";
-        $XMLfile_path = $_SESSION["file"]["cash_directory_relative_path"] . $_SESSION["file"]["unzip_folder_name"] . '/' . $path_to_document;
+        $XMLfile_path = $this->unpackDir . '/' . $path_to_document;
         $xml_document = simplexml_load_file($XMLfile_path, null, 0, 'w', true);
         $body = $xml_document->body;
 
@@ -447,7 +473,7 @@ class FileHandler{
     // public function process_html(){
 
     //     $dom = new DOMDocument();
-    //     $path = $_SESSION["file"]["cash_directory_relative_path"] . "content.html";
+    //     $path = $this->cashDir . "content.html";
     //     $html = file_get_contents($path);
     //     if (!$html) return 0;
     //     $dom->loadHTML('<?xml encoding="UTF-8">' . $html);

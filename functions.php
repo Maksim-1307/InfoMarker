@@ -62,11 +62,11 @@ function download_file($url){
     } 
 }
 
-function save_html($docx, $to){
-    $phpWord = \PhpOffice\PhpWord\IOFactory::load($docx);
-    $htmlWriter = new \PhpOffice\PhpWord\Writer\HTML($phpWord);
-    $htmlWriter->save($to);
-}
+// function save_html($docx, $to){
+//     $phpWord = \PhpOffice\PhpWord\IOFactory::load($docx);
+//     $htmlWriter = new \PhpOffice\PhpWord\Writer\HTML($phpWord);
+//     $htmlWriter->save($to);
+// }
 
 function print_array($arr, $tab = 0)
 {

@@ -18,7 +18,7 @@ class ZipHandler{
     public function unzip($src, $to, $callback = null){
         try {
 
-            $zip = new ZipArchive;
+            $zip = new ZipArchive();
             $zip->open($src);
             $name = end((explode("/", $src)));
             $name = ZipHandler::removeExt($name);
