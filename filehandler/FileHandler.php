@@ -350,7 +350,7 @@ class FileHandler{
     public function make_docx()
     {
         //$this->cashDir . $_SESSION["file"]["currentfile"]
-        $dir = $this->cashDir . $this->unpackDir;
+        $dir = $this->unpackDir;
         $zip = new ZipArchive;
         $zip->open($dir . ".docx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
