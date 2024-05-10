@@ -67,19 +67,14 @@ class FileHandler{
         $this->unpackDir = $this->ZipHandler->unzip($this->uploadedFilePath, $this->cashDir);
         if (!$this->unpackDir) throw new Exception("Cannot unzip the file");
 
-        // работа с сессей
-        $fileFullName = $_SESSION["file"]["currentfile"];
-        $aFileName = explode('.', $this->uploadedFilePath)[0];
-        $this->unpackDir = $aFileName;
-        $extractDir = $this->cashDir . $aFileName;
-
 
         $this->register_list = $this->get_names_from_db();
 
         $_SESSION["coinsidences"] = [];
 
         $this->process_xml();
-        $this->make_docx();
+        $this->ZipHandler->zip($this->unpackDir, $this->cashDir);
+        //$this->make_docx();
 
         foreach ($_SESSION["coinsidences"] as $name => $data) {
             if (!$data){
