@@ -169,14 +169,19 @@ class FileHandler{
             }
         }
 
-    public function is_punctuation($t){
-            $text = trim($t, " !?.,;:");
-            if (strlen($text) == 0){
-                return 1;
-            } else {
-                return 0;
-            }
+    public function is_punctuation($curr, $next){
+        $text = trim($next, " !?.,;:");
+        if (strlen($text) == 0){
+            return 1;
+        } else {
+            return 0;
         }
+        // if (substr($next, 0, 1) != " " && substr($curr, -1, 1) != " ") {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
+    }
 
     public function saveCoincidences($text){
             $coinsidences = [];
@@ -292,7 +297,7 @@ class FileHandler{
                 $word = $segment_words[$w];
                 if ($word) {
                     if ($w+1 < count($segment_words)){
-                        if ($this->is_punctuation($segment_words[$w + 1])){
+                        if ($this->is_punctuation($word, $segment_words[$w + 1])){
                             $next_word = $segment_words[$w+1];
                             $word = $word . $next_word;
                             unset($segment_words[$w+1]);
@@ -300,7 +305,7 @@ class FileHandler{
                     } else {
                         if (isset($next_segment_text)){
                             $next_word = explode(" ", $next_segment_text)[0];
-                            if ($this->is_punctuation($next_word)) {
+                            if ($this->is_punctuation($word, $next_word)) {
                                 
                                 $word = $word . $next_word;
                                 $next_words = explode(" ", $next_segment_text);

@@ -22,7 +22,7 @@ class Uploader{
     public function check_file($file){
         $ext = end((explode(".", $file["name"])));
         if (!in_array($ext, $this->rules["allowed_extensios"])){
-            throw new Exception('Unsupported file extension. Change Uploader->$rules. Allowed extentions: ' . implode(", ", $this->rules["allowed_extensios"]) . ", your file extention is " . $file["name"] . ".");
+            throw new Exception('Unsupported file extension. Change Uploader->$rules. Allowed extentions: ' . implode(", ", $this->rules["allowed_extensios"]) . ", your file extention is " . $file["name"] . ".", 15);
             return false;
         }
         return true;
@@ -34,8 +34,13 @@ class Uploader{
             $file = reset($_FILES);
             if (!$file) throw new Exception("\$_FILES is empty");
             
-            $file["name"] = transliterate($file["name"]);
-            if (!$file) throw new Exception("\$_FILES is empty");
+            if (isset($this->rules["unque_name_prefix"])){
+                $file["name"] = $this->rules["unque_name_prefix"] . time() . rand(0,9);
+            } else {
+                $file["name"] = transliterate($file["name"]);
+            }
+            
+
             if (!$this->check_file($file)) return false;
             if (!is_dir($savePath)){
                 if (!$this->rules["allow_create_dir"]){
