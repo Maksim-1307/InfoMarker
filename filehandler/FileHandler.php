@@ -55,28 +55,19 @@ class FileHandler{
 
     public function handle(){
 
-        // создание папки кеша, запись в сессию
-
         unset($_SESSION["file"]);
 
         $path_to_root = $_SERVER['DOCUMENT_ROOT'] . '/';
         $user_id = $_SESSION["user"]["id"];
-        //$this->cashDir = $path_to_root . $this->handler_settings["cash_directory_prefix"] . $user_id . '/';
-
-        $rel_path = $this->cashDir;
-
         $_SESSION["file"]["currentfile"] = reset($_FILES)['name'];
 
-
-        $this->uploadedFilePath = $this->DocumentUploader->upload($rel_path);
+        $this->uploadedFilePath = $this->DocumentUploader->upload($this->cashDir);
         if (!$this->uploadedFilePath) throw new Exception("Cannot upload the file");
 
         $this->unpackDir = $this->ZipHandler->unzip($this->uploadedFilePath, $this->cashDir);
         if (!$this->unpackDir) throw new Exception("Cannot unzip the file");
 
-
         // работа с сессей
-
         $fileFullName = $_SESSION["file"]["currentfile"];
         $aFileName = explode('.', $this->uploadedFilePath)[0];
         $this->unpackDir = $aFileName;
@@ -134,10 +125,6 @@ class FileHandler{
         }
         return $this->register_list;
     }
-
-
-
-
 
     public function nice_color($color)
         {
@@ -341,7 +328,6 @@ class FileHandler{
             }
             unset($segments_array[0]);
         }
-        //die("testtest");
     }
 
     public function extract_text(SimpleXMLElement $p){
