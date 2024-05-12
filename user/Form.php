@@ -1,5 +1,7 @@
 <?php
 
+$_POST = json_decode(file_get_contents("php://input"), true);
+
 class InputField {
 
     public $type = "text";
@@ -11,10 +13,10 @@ class InputField {
 
     public function validate(){
         if (isset($this->validate_function)) {
-            $this->error = $this->validate_function($this);
+            $funcArr = $this->validate_function;
+            $this->error = $funcArr($this);
         }
     }
-
 }
 
 enum Method {
@@ -27,12 +29,12 @@ enum Method {
 
 class Form {
     
-    private Method $method;
-    private $enctype;
-    private $fields;
-    private $action;
+    public $method;
+    public $enctype;
+    public $fields;
+    public $action;
 
-    public function __construct (Method $method, $action, $enctype = null){
+    public function __construct ($method, $action, $enctype = null){
         $this->fields = [];
         $this->method = $method;
         $this->enctype = $enctype;
@@ -46,16 +48,66 @@ class Form {
         $field->type = $type;
         $field->required = $required;
         $field->validate_function = $validate_function;
+        // $field->validate_function = function($field){
+        //     return call_user_func($validate_function, $field);
+        // };
+
         array_push($this->fields, $field);
+    }
+
+    public function validate_fields(){
+
+        $hasError = false;
+        foreach ($this->fields as $field) {
+            $field->validate();
+            if ($field->error) $hasError = true;
+        }
+        return !$hasError;
+
+    }
+
+    function get_data(){
+
+        $data = null;
+
+        switch ($this->method){
+            case 'GET': $data = $_GET;
+            case 'POST': $data = $_POST;
+        }
+
+        $data = $_POST;
+        
+        if (!$data){
+            return false;
+        } 
+
+        foreach ($this->fields as $field) {
+            if (isset($data[$field->name])){
+                $field->value = $data[$field->name];
+            }
+        }
+        return true;
+
     }
 
 
     // used so that the front-end knows which fields to draw and where to send data
 
     function json_describe(){
-        return json_encode($this);
+        return json_encode($this, JSON_UNESCAPED_UNICODE);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 ?>

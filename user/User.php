@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Form.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/filehandler/Uploader.php';
 
 enum AuthType {
     case default;
@@ -58,9 +59,9 @@ class User{
 
     public static function check_login($field){
 
-        if (!field->value) return "Введите логин";
+        if (!$field->value) return "Введите логин";
 
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/secret.php';
+        require_once 'connect.php';
 
         $result = $connect->query("SELECT 1 FROM users WHERE login = '$field->value';");
         if (mysqli_num_rows($result)){
@@ -105,18 +106,20 @@ class User{
 
     public static function check_avatar($field){
 
-        function errCallBack ($e) {
-            // 15 is unsupported extention code
-            if ($e->getCode() == 15) {
-                return "Выберите файл с расширением <b>png</b>, <b>jpg</b> или <b>jpeg</b>";
-            }
-        }
+        // function errCallBack ($e) {
+        //     // 15 is unsupported extention code
+        //     if ($e->getCode() == 15) {
+        //         return "Выберите файл с расширением <b>png</b>, <b>jpg</b> или <b>jpeg</b>";
+        //     }
+        // }
 
-        if ($field->required && !$file->value) return "Выберите изображение"; 
-        if (!$field->required && !$file->value) return false;
+        // if ($field->required && !$file->value) return "Выберите изображение"; 
+        // if (!$field->required && !$file->value) return false;
 
-        $uploadPath = self::$avatarUploader->upload($_SERVER['DOCUMENT_ROOT'] . '/uploads/profile-images/', errCallBack);
-        if (!$uploadPath || !is_file($uploadPath)) return "Не удалось загрузить изображение";
+        // $uploadPath = self::$avatarUploader->upload($_SERVER['DOCUMENT_ROOT'] . '/uploads/profile-images/', errCallBack);
+        // if (!$uploadPath || !is_file($uploadPath)) return "Не удалось загрузить изображение";
+
+        if (!count($_FILES)) return "Не удалось загрузить файл";
 
         return false;
 
@@ -128,13 +131,13 @@ class User{
 
     public function get_register_form($action){
 
-        $registerForm = new Form(Method::POST, $action, 'multipart/form-data');
+        $registerForm = new Form("POST", $action, 'multipart/form-data');
 
-        $registerForm->add_field("login", "text", true, User::check_login);
-        $registerForm->add_field("email", "email", true, User::check_email);
-        $registerForm->add_field("fullname", "text", true);
-        $registerForm->add_field("password", "password", true, User::check_password);
-        $registerForm->add_field("avatar", "file", true, User::check_avatar);
+        $registerForm->add_field("login", "text", true, ["User", "check_login"]);
+        $registerForm->add_field("email", "email", true, ["User", "check_email"]);
+        $registerForm->add_field("fullname", "text", true, null);
+        $registerForm->add_field("password", "password", true, ["User", "check_password"]);
+        $registerForm->add_field("avatar", "file", false, ["User", "check_avatar"]);
 
         return $registerForm;
 
@@ -145,10 +148,19 @@ class User{
 
     public function register(Form $registerForm){
 
+        if (!$registerForm->validate_fields()) return $registerForm;
+
+        echo "all is ok<br>";
+        echo "username is " . $registerForm->fields["login"]->value;
+        echo "username is " . $registerForm->fields["fullname"]->value;
+
     }
 }
 
-$pUser = new User();
-$_SESSION["pUser"] = &$pUser;
+if (!isset($_SESSION["pUser"])){
+    $pUser = new User();
+    $_SESSION["pUser"] = &$pUser;
+}
+
 
 ?>
