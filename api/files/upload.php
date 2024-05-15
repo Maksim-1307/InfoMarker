@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(1);
+error_reporting(0);
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');

@@ -9,6 +9,7 @@ class InputField {
     public $name;
     public $value;
     public $error;
+    public $placeholder = "";
     public $validate_function;
 
     public function validate(){
@@ -42,17 +43,26 @@ class Form {
     }
 
 
-    public function add_field($name, $type = "text", $required = false, $validate_function){
+    public function add_field($name, $type = "text", $required = false, $placeholder, $validate_function){
         $field = new InputField();
         $field->name = $name;
         $field->type = $type;
         $field->required = $required;
+        $field->placeholder = $placeholder;
         $field->validate_function = $validate_function;
         // $field->validate_function = function($field){
         //     return call_user_func($validate_function, $field);
         // };
 
         array_push($this->fields, $field);
+    }
+
+    public function get_values_array(){
+        $result = [];
+        foreach ($this->fields as $field){
+            $result[$field->name] = $field->value;
+        }
+        return $result;
     }
 
     public function validate_fields(){
@@ -66,7 +76,7 @@ class Form {
 
     }
 
-    function get_data(){
+    function parse_data(){
 
         $data = null;
 

@@ -10,3 +10,4 @@ session/*
 vendor/*
 admin/database/unzip
 admin/database/unzipped
+uploads/*

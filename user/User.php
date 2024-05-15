@@ -106,20 +106,7 @@ class User{
 
     public static function check_avatar($field){
 
-        // function errCallBack ($e) {
-        //     // 15 is unsupported extention code
-        //     if ($e->getCode() == 15) {
-        //         return "Выберите файл с расширением <b>png</b>, <b>jpg</b> или <b>jpeg</b>";
-        //     }
-        // }
-
-        // if ($field->required && !$file->value) return "Выберите изображение"; 
-        // if (!$field->required && !$file->value) return false;
-
-        // $uploadPath = self::$avatarUploader->upload($_SERVER['DOCUMENT_ROOT'] . '/uploads/profile-images/', errCallBack);
-        // if (!$uploadPath || !is_file($uploadPath)) return "Не удалось загрузить изображение";
-
-        if (!count($_FILES)) return "Не удалось загрузить файл";
+        if (!count($_FILES) && $field->required) return "Не удалось загрузить файл";
 
         return false;
 
@@ -133,11 +120,11 @@ class User{
 
         $registerForm = new Form("POST", $action, 'multipart/form-data');
 
-        $registerForm->add_field("login", "text", true, ["User", "check_login"]);
-        $registerForm->add_field("email", "email", true, ["User", "check_email"]);
-        $registerForm->add_field("fullname", "text", true, null);
-        $registerForm->add_field("password", "password", true, ["User", "check_password"]);
-        $registerForm->add_field("avatar", "file", false, ["User", "check_avatar"]);
+        $registerForm->add_field("login", "text", true, "Логин" ,["User", "check_login"]);
+        $registerForm->add_field("email", "email", true, "Ваш e-mail", ["User", "check_email"]);
+        $registerForm->add_field("fullname", "text", true, "Как к Вам обращаться?", null);
+        $registerForm->add_field("password", "password", true, "Придумайте пароль", ["User", "check_password"]);
+        $registerForm->add_field("avatar", "file", false, "Выберите изображение профиля", ["User", "check_avatar"]);
 
         return $registerForm;
 
@@ -148,11 +135,32 @@ class User{
 
     public function register(Form $registerForm){
 
-        if (!$registerForm->validate_fields()) return $registerForm;
+        require 'connect.php';
 
-        echo "all is ok<br>";
-        echo "username is " . $registerForm->fields["login"]->value;
-        echo "username is " . $registerForm->fields["fullname"]->value;
+        $fields = $registerForm->get_values_array();
+
+        $login = $fields["login"];
+        $email = $fields["email"];
+        $full_name = $fields["fullname"];
+        $password = md5($fields["password"]);
+        $image_path = NULL;
+        
+        //try {
+            $image_path = self::$avatarUploader->upload($_SERVER['DOCUMENT_ROOT'] . '/uploads/profile-images/');
+        //} 
+        // catch (Exception $e) {
+            // $image_path = NULL;
+        // }
+
+          
+
+        $check = mysqli_query($connect, "INSERT INTO `users` (`id`, `login`, `email`, `full_name`, `password`, `avatar`) VALUES (NULL, '$login', '$email', '$full_name', '$password', '$image_path')");
+
+        return json_encode(["success" => true]);
+
+    }
+
+    public function login(Form $loginForm){
 
     }
 }

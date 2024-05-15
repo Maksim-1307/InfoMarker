@@ -34,12 +34,12 @@ class Uploader{
             $file = reset($_FILES);
             if (!$file) throw new Exception("\$_FILES is empty");
             
+            $ext = end((explode(".", $file["name"])));
             if (isset($this->rules["unque_name_prefix"])){
-                $file["name"] = $this->rules["unque_name_prefix"] . time() . rand(0,9);
+                $file["name"] = $this->rules["unque_name_prefix"] . time() . rand(0,9) . "." . $ext;
             } else {
                 $file["name"] = transliterate($file["name"]);
             }
-            
 
             if (!$this->check_file($file)) return false;
             if (!is_dir($savePath)){
