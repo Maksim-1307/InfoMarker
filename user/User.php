@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 require_once 'Form.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/filehandler/Uploader.php';
 
@@ -130,6 +132,16 @@ class User{
 
     }
 
+    public function get_login_form($action){
+
+        $loginForm = new Form("GET", $action);
+
+        $loginForm->add_field("login", "text", true, "Логин", null);
+        $loginForm->add_field("password", "password", true, "Пароль", null);
+
+        return $loginForm;
+    }
+
 
     // requieres filled form, derived from get_register_form
 
@@ -145,12 +157,12 @@ class User{
         $password = md5($fields["password"]);
         $image_path = NULL;
         
-        //try {
+        try {
             $image_path = self::$avatarUploader->upload($_SERVER['DOCUMENT_ROOT'] . '/uploads/profile-images/');
-        //} 
-        // catch (Exception $e) {
-            // $image_path = NULL;
-        // }
+        } 
+        catch (Exception $e) {
+            $image_path = NULL;
+        }
 
           
 
@@ -161,7 +173,32 @@ class User{
     }
 
     public function login(Form $loginForm){
+        require 'connect.php';
 
+        $fields = $loginForm->get_values_array();
+
+        $login = $fields["login"];
+        $password = md5($fields["password"]);
+
+        $check = mysqli_query($connect, "SELECT * FROM  `users` WHERE `login` = '$login' AND `password` = '$password'");
+        if (mysqli_num_rows($check)){
+            $user = mysqli_fetch_assoc($check);
+            $this->userData["login"] = $user["login"];
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function get_login(){
+        return $this->userData["login"];
+    }
+    public function get_fullname(){
+        require "connect.php";
+        $login = $this->userData["login"];
+        $sql = mysqli_query($connect, "SELECT `full_name` FROM  `users` WHERE `login` = 'Maksim'");
+        $result = mysqli_fetch_assoc($sql);
+        return $result["full_name"];
     }
 }
 

@@ -1,6 +1,8 @@
 <?php
 
-header('Access-Control-Allow-Origin: *');
+session_start();
+
+header('Access-Control-Allow-Origin: https://info-marker.ru');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
@@ -9,28 +11,24 @@ error_reporting(1);
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/user/User.php';
 
-// echo "INPUT CONTENTS: " . file_get_contents("php://input") . "<br>";
-// var_dump($_REQUEST);
 $_POST = $_REQUEST;
-
-
 $url = "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
 $user = $_SESSION["pUser"];
 if (!$user) throw new Exception("Unable to get user data");
 
-$form = $user->get_register_form($url);
+$form = $user->get_login_form($url);
 
 
 if (!$form->parse_data()) {
-    
-    echo $user->get_register_form($url)->json_describe();
+    echo $user->get_login_form($url)->json_describe();
     exit();
 } else {
-    if (!$form->validate_fields()){
+    if (!$user->login($form)){
+        $form->fields[0]->error = "Неверный логин или пароль";
         echo $form->json_describe();
     } else {
-        echo $user->register($form);
+        echo json_encode(["success" => true, "session" => session_id(), "login" => $_SESSION["pUser"]]);
     }
 }
 

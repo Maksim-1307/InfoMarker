@@ -40,7 +40,6 @@ function parse_inoagents(){
     // массив с id таблиц с физ. лицами
     //$individualsTablesIDs = array(3, 4);
     foreach ($tables as $tb){
-        $id++;
         $rows = $tb->getElementsByTagName("tr");
         foreach($rows as $row){
             if (isset($row->getElementsByTagName("td")[0]->textContent)){
@@ -55,6 +54,7 @@ function parse_inoagents(){
                 }
             }
         }
+        $id++;
     }
     return $register;
 }
